@@ -22,5 +22,34 @@ const saveDataService = async (data) => {
     throw err;
   }
 };
+const getDataService = async () => {
+  try {
+     const data = await MetaData.find();
+    return data;
 
-module.exports = { saveDataService };
+  } catch (err) {
+    console.error(' Lỗi save DB:', err);
+    throw err;
+  }
+};
+ 
+
+const deleteDataService = async (idData) => {
+  try {
+    
+ 
+    const result = await MetaData.deleteOne({ _id: idData });
+
+    if (result.deletedCount === 0) {
+      return { notFound: true, message: 'Không tìm thấy document để xoá' };
+    }
+
+    return { success: true, message: 'Xoá metadata thành công' };
+  } catch (err) {
+    console.error('Lỗi delete DB:', err);
+    throw err;
+  }
+};
+
+ 
+module.exports = { saveDataService,getDataService,deleteDataService };
