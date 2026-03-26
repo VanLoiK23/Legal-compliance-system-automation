@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // const {register,signin,fetchUser,deleteUserById,updateUserById} = require('../controllers/usersController')
-const {upsertRule,getRuleExist,insertLog,fetchLog} = require('../controllers/ruleController')
+const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog} = require('../controllers/ruleController')
 const {auth,authIsAdmin} = require('../middlewares/auth')
 const { receiveData ,getMetadata, deleteMetadata} = require('../controllers/metadataController');
 
@@ -16,6 +16,8 @@ router.get('/', (req,res)=>{
 
 router.post('/rule',upsertRule);
 router.get('/rule',getRuleExist);
+router.put('/rule',updateRule);
+router.delete('/rule/:rule_id',deleteRule);
 router.post('/logging',insertLog);
 router.get('/logging',fetchLog);
 // router.get('/user',fetchUser);

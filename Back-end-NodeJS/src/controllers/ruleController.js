@@ -1,10 +1,9 @@
-const {getRules,getDetailRule,addNewRule} = require('../services/ruleService');
+const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById} = require('../services/ruleService');
 const {addLogging,getLogging} = require('../services/loggingService');
 
 const getRuleExist = async (req, res) => {
     try{
         const data =await getRules();
-        console.log("me may beo")
         console.log(data)
         if(data){
             if(Array.isArray(data)){
@@ -21,7 +20,7 @@ const getRuleExist = async (req, res) => {
                         timeZone: 'Asia/Ho_Chi_Minh' 
                       }).replace(',', '');
     
-                    const ruleJ = {'source.url': rule.source_url,'source.pubDate': formattedDate,...rule._doc,'extracted_at':formattedFull}
+                    const ruleJ = {id:rule.rule_id,'source.url': rule.source_url,'source.pubDate': formattedDate,...rule._doc,'extracted_at':formattedFull}
                     return ruleJ
                 })
     
@@ -74,6 +73,55 @@ const upsertRule = async (req,res)=>{
     }
 }
 
+const updateRule = async (req,res)=>{
+
+    try{
+        const rule = req.body;
+
+        console.log(rule)
+
+        let result = updateExistRule(rule);
+    
+        console.log(result)
+
+        return res.status(200).json(
+            {
+                rules:rule,
+                message: 'update success'
+            }
+        );
+
+    }catch(err){
+        console.log(err)
+
+        return res.sendStatus(500);
+
+    }
+}
+
+const deleteRule = async (req,res)=>{
+
+    try{
+        const { rule_id } = req.params;
+
+        let result = deleteRuleById(rule_id);
+    
+        console.log(result)
+
+        return res.status(200).json(
+            {
+                message: 'delete success'
+            }
+        );
+
+    }catch(err){
+        console.log(err)
+
+        return res.sendStatus(500);
+
+    }
+}
+
 const insertLog = async (req,res)=>{
 
     try{
@@ -113,4 +161,4 @@ const fetchLog = async (req,res)=>{
     }
 }
 
-module.exports = {getRuleExist,upsertRule,fetchLog,insertLog}
+module.exports = {getRuleExist,upsertRule,updateRule,deleteRule,fetchLog,insertLog}

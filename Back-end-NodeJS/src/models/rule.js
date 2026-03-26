@@ -8,6 +8,7 @@ const ruleSchema = new mongoose.Schema({
     actions_required: [String],
     severity: String,
     source_url: String,
+    status: String,
     source_pubDate: Date,
     extracted_at: Date,
 });
