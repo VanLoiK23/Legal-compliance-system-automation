@@ -3,7 +3,7 @@ const router = express.Router();
 // const {register,signin,fetchUser,deleteUserById,updateUserById} = require('../controllers/usersController')
 const {upsertRule,getRuleExist,insertLog,fetchLog} = require('../controllers/ruleController')
 const {auth,authIsAdmin} = require('../middlewares/auth')
-const { receiveData } = require('../controllers/metadataController');
+const { receiveData ,getMetadata, deleteMetadata} = require('../controllers/metadataController');
 
 //apply middleware for all
 // router.use([auth]);
@@ -22,5 +22,8 @@ router.get('/logging',fetchLog);
 // router.delete('/user/:id',authIsAdmin,deleteUserById);
 // router.put('/user',authIsAdmin,updateUserById);
 //get data uploads
+router.get('/receive', getMetadata);
 router.post('/receive', receiveData);
+router.delete('/receive/:id', deleteMetadata);
+
 module.exports = router;
