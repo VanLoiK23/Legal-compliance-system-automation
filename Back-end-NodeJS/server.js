@@ -12,13 +12,10 @@ app.use(cors())
 const session = require('express-session');
 const flash = require('connect-flash');
 
-const webRoutes = require('./src/routes/web');
-const adminRoutes = require('./src/routes/admin');
 const apiRoutes = require('./src/routes/api');
 
 const  {requireAdmin,requireLogin}= require('./src/middlewares/authMiddleware');
 
-const configViewEngine = require('./src/config/viewEngine');
 const connection = require('./src/config/database');
 
 //config session
@@ -33,11 +30,6 @@ app.use(session({
 app.use(express.json()) // for json
 app.use(express.urlencoded({ extended: true })) // for form data
 
-//config template engine
-configViewEngine(app);
-
-//config static files: image/css/js
-app.use(express.static(path.join(__dirname, 'public')));
 //active flash
 app.use(flash());
 app.use((req, res, next) => {
@@ -48,11 +40,6 @@ app.use((req, res, next) => {
 });
 
 // ROUTING
-app.use('/admin', requireLogin, requireAdmin, adminRoutes);
-
-app.use('/', webRoutes);
-
-//api
 app.use('/v1/api',apiRoutes);
 
 (async () => {
