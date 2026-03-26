@@ -1,16 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
-import './styles/global.css'
+// import './styles/global.css'
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import RegisterForm from './pages/register.jsx'
-import IntroPage from './pages/intro.jsx';
 import LoginForm from './pages/login.jsx';
-import UserPage from './pages/dashboard.jsx';
 import { AuthWrapper } from './components/context/auth.context.jsx';
+import Dashboard from './pages/admin/dashboard.jsx';
+import RuleManagement from './pages/admin/rule_management.jsx';
 
 
 const router = createBrowserRouter([
@@ -25,24 +24,38 @@ const router = createBrowserRouter([
         index : true,
         element: <App />
       },
-      {
-        path: "introduce",
-        element: <IntroPage />
-      }
+      // {
+      //   path: "introduce",
+      //   element: <IntroPage />
+      // }
     ]
   },
   {
-    path: "dashboard",
-    element: <UserPage/>
+    path: "/admin",
+    element: <App />, 
+    children: [
+      {
+        index: true,
+        element: <Dashboard /> 
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />
+      },
+      {
+        path: "rules",
+        element: <RuleManagement />
+      },
+    ]
   },
   {
     path: "login",
     element: <LoginForm/>
   },
-  {
-    path: "register",
-    element: <RegisterForm/>
-  }
+  // {
+  //   path: "register",
+  //   element: <RegisterForm/>
+  // }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
