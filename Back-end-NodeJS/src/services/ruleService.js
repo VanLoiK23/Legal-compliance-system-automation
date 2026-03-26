@@ -56,8 +56,62 @@ const getDetailRule = async (rule_id) => {
   }
 };
 
+const updateExistRule = async (rule) => {
+  try { 
+    const dateObject = rule.source_pubDate ? new Date(rule.source_pubDate) : new Date();
+    const filter = { rule_id: rule.rule_id };
+
+    let extractedAtDate;
+    if (rule.extracted_at && typeof rule.extracted_at === 'string') {
+      extractedAtDate = moment(rule.extracted_at, "DD/MM/YYYY HH:mm:ss").toDate();
+    } else {
+      extractedAtDate = new Date(); 
+    }
+
+    const updateData = {
+      title: rule.title,
+      description: rule.description,
+      conditions: rule.conditions,
+      actions_required: rule.actions_required,
+      severity: rule.severity,
+      source_url: rule.source_url,
+      source_pubDate: dateObject,
+      extracted_at: extractedAtDate, 
+      status: rule.status || 'Active' 
+    };
+
+    let result = await Rule.findOneAndUpdate(
+      filter, 
+      updateData, 
+      {
+        new: true,      // return after update
+        upsert: true,   // if rule_id not exist make new
+        runValidators: true // Make sure data standard Schema
+      }
+    );
+
+    return result;
+  } catch (error) {
+    console.error("Lỗi cập nhật Rule:", error);
+    return null;
+  }
+};
+
+const deleteRuleById = async (ruleId) => {
+  try {
+    const result = await Rule.deleteOne({ rule_id: ruleId });
+    
+    return result;
+  } catch (err) {
+    console.error("Lỗi khi xóa Rule tại DB:", err);
+    throw err;
+  }
+};
+
 module.exports = {
   addNewRule,
   getRules,
-  getDetailRule
+  getDetailRule,
+  updateExistRule,
+  deleteRuleById
 };
