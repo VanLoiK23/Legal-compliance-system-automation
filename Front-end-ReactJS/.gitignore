@@ -1,3 +1,11 @@
 node_modules
 .env.development
 .env.production
+dashboard.jsx
+login.jsx
+MainLayout.jsx
+App.jsx
+main.jsx
+index.html
+vite.config.js
+api.js

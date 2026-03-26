@@ -16,24 +16,24 @@ const login =(email,password)=>{
     return axios.post(URL,data)
 }
 
-const getUser = ()=>{
-    const URL = '/v1/api/user'
+const getRules = ()=>{
+    const URL = '/v1/api/rule'
 
     return axios.get(URL);
 }
 
-const deleteUser = (id)=>{
-    const URL = '/v1/api/user/'+id
+const deleteRule = (rule_id)=>{
+    const URL = '/v1/api/rule/'+rule_id
 
     return axios.delete(URL);
 }
 
-const updateUser = (user)=>{
-    const URL = '/v1/api/user'
+const updateRule = (rule)=>{
+    const URL = '/v1/api/rule'
 
-    const data = user
+    const data = rule
 
     return axios.put(URL,data);
 }
 
-export {createUserAPI,login,getUser,deleteUser,updateUser}
+export {createUserAPI,login,getRules,deleteRule,updateRule}
