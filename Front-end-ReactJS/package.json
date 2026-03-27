@@ -17,9 +17,11 @@
   "dependencies": {
     "antd": "^6.3.0",
     "axios": "^1.13.5",
+    "lucide-react": "^1.7.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@types/react": "18.3.3",
