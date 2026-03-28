@@ -10,6 +10,7 @@ import LoginForm from './pages/login.jsx';
 import { AuthWrapper } from './components/context/auth.context.jsx';
 import Dashboard from './pages/admin/dashboard.jsx';
 import RuleManagement from './pages/admin/rule_management.jsx';
+import UploadPage from './components/UploadPage.jsx';
 
 
 const router = createBrowserRouter([
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
   {
     path: "login",
     element: <LoginForm/>
+  },
+    {
+    path: "form-upload",
+    element: <UploadPage/>
   },
   // {
   //   path: "register",
