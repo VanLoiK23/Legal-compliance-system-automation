@@ -1,5 +1,5 @@
-const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById, fetchRuleByUrl, updateRulesByUrl} = require('../services/ruleService');
-const {addLogging,getLogging} = require('../services/loggingService');
+const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById, fetchRuleByUrl, updateRulesByUrl, getRulesThisWeek} = require('../services/ruleService');
+const {addLogging,getLogging, getLastLogTypeW1} = require('../services/loggingService');
 
 const getRuleExist = async (req, res) => {
     try{
@@ -132,8 +132,8 @@ const filter_rule_exist = async (req,res) => {
     
         const existingSources = new Set(
           sheet_rules.map(r => {
-            const url = r['source.url'] || r['source_url'] || '';
-            const raw = r['source.pubDate'] || r['source_pubDate'] || '';
+            const url = r['source.url'] || '';
+            const raw = r['source.pubDate'] || '';
             let date = '';
             if (raw.includes('/')) {
               const parts = raw.split('/');
@@ -234,12 +234,27 @@ const check_change_and_update = async (req, res) => {
         const normalizedExisting = normalize(existingPubDate);
   
         if (normalizedNew !== normalizedExisting) {
-          const newRulesForUrl = data.filter(r => r.source?.url === url);
-          await updateRulesByUrl(url, newRulesForUrl);
-          results.updated.push({ url, old_date: normalizedExisting, new_date: normalizedNew });
-        } else {
-          results.unchanged.push(url);
-        }
+            const newDate = new Date(normalizedNew);
+            const existingDate = new Date(normalizedExisting);
+            
+            const diffMs = Math.abs(newDate - existingDate);
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffDays >= 7) {
+              const newRulesForUrl = data.filter(r => r.source?.url === url);
+              await updateRulesByUrl(url, newRulesForUrl, newPubDate);
+              results.updated.push({ 
+                url, 
+                old_date: normalizedExisting, 
+                new_date: normalizedNew,
+                diff_days: diffDays
+              });
+            } else {
+              results.unchanged.push(url);
+            }
+          } else {
+            results.unchanged.push(url);
+          }
       }
   
       return res.json(results);
@@ -249,6 +264,15 @@ const check_change_and_update = async (req, res) => {
       return res.status(500).json({ error: err.message });
     }
   };
+
+const fetchRuleWeekly = async(req,res)=>{
+    try {
+        const rules = await getRulesThisWeek();
+        return res.json(rules.map(r => ({ ...r, _type: 'weekly' })));
+      } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
 
 const insertLog = async (req,res)=>{
 
@@ -290,4 +314,15 @@ const fetchLog = async (req,res)=>{
     }
 }
 
-module.exports = {getRuleExist,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchLog,insertLog}
+const fetchLastLogW1 = async (req,res)=>{
+
+    try {
+        const log = await getLastLogTypeW1();
+        if (!log) return res.json({ _type: 'last_log', message: 'Chưa có log' });
+        return res.json({ ...log, _type: 'last_log' });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
+
+module.exports = {getRuleExist,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchRuleWeekly,fetchLog,insertLog,fetchLastLogW1}

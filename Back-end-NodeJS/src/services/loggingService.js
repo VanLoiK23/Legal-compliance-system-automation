@@ -41,8 +41,16 @@ const getLoggingFollowType = async (type) => {
   }
 };
 
+const getLastLogTypeW1 = async () => {
+  return await Logging.findOne({ type: 'w1' })
+    .sort({ timestamp: -1 })
+    //.skip(1) // bỏ qua log mới nhất (lần hiện tại), lấy lần trước
+    .lean();
+};
+
 module.exports = {
   addLogging,
   getLogging,
-  getLoggingFollowType
+  getLoggingFollowType,
+  getLastLogTypeW1
 };

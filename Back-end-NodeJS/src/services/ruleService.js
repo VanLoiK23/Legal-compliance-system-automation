@@ -71,9 +71,8 @@ const fetchRuleByUrl = async (url) => {
   }
 };
 
-const updateRulesByUrl = async (url,rule) => {
+const updateRulesByUrl = async (url,rule,date) => {
   try { 
-    const dateObject = rule.source?.pubDate ? new Date(rule.source?.pubDate) : new Date();
     const filter = { source_url: url };
 
     const updateData = {
@@ -83,7 +82,7 @@ const updateRulesByUrl = async (url,rule) => {
       actions_required: rule.actions_required,
       severity: rule.severity,
       source_url: url,
-      source_pubDate: dateObject,
+      source_pubDate: date,
     };
 
     let result = await Rule.findOneAndUpdate(
@@ -101,6 +100,21 @@ const updateRulesByUrl = async (url,rule) => {
     console.error("Lỗi cập nhật Rule:", error);
     return null;
   }
+};
+
+const getRulesThisWeek = async () => {
+  const now = new Date();
+  
+  const dayOfWeek = now.getDay(); // 0=CN, 1=T2, ..., 6=T7
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - daysFromMonday);
+  monday.setHours(0, 0, 0, 0); // 00:00:00 thứ 2
+
+  return await Rule.find({
+    extracted_at: { $gte: monday }
+  }).lean();
 };
 
 const updateExistRule = async (rule) => {
@@ -161,6 +175,7 @@ module.exports = {
   getDetailRule,
   fetchRuleByUrl,
   updateRulesByUrl,
+  getRulesThisWeek,
   updateExistRule,
   deleteRuleById
 };
