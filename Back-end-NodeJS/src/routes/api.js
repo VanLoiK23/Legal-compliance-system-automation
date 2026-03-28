@@ -24,3 +24,8 @@ router.get('/logging',fetchLog);
 //get data uploads
 router.post('/receive', receiveData);
 module.exports = router;
+
+const { saveComplianceResult } = require('../controllers/complianceController');
+
+// Route này để n8n gọi tới
+router.post('/compliance-results', saveComplianceResult);

@@ -5,7 +5,7 @@ const connection = async () => {
     // LOG ĐỂ KIỂM TRA (Sẽ hiện ra terminal)
     console.log("------------------------------------------");
     console.log("🔍 ĐANG KIỂM TRA BIẾN MÔI TRƯỜNG...");
-    console.log(">>> MONGODB_URI:", process.env.MONGO_DB_URI);
+    console.log(">>> MONGO_DB_URI:", process.env.MONGO_DB_URI);
     console.log("------------------------------------------");
 
     const uri = process.env.MONGO_DB_URI;
