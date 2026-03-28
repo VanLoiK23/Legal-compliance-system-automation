@@ -4,10 +4,10 @@ const router = express.Router();
 const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog} = require('../controllers/ruleController')
 const {auth,authIsAdmin} = require('../middlewares/auth')
 const { receiveData ,getMetadata, deleteMetadata} = require('../controllers/metadataController');
-
+const {ProcessUploadData} =  require('../controllers/uploadDataController')
 //apply middleware for all
 // router.use([auth]);
-
+const upload = require('../middlewares/upload');
 router.get('/', (req,res)=>{
     res.status(200).json({
         mess:'Hello world API'
@@ -27,5 +27,7 @@ router.get('/logging',fetchLog);
 router.get('/receive', getMetadata);
 router.post('/receive', receiveData);
 router.delete('/receive/:id', deleteMetadata);
+//process uploadfile metadata from fontend
+router.post('/uploadData',upload.single('file'),ProcessUploadData)
 
 module.exports = router;
