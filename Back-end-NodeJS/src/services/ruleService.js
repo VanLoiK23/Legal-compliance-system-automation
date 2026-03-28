@@ -56,6 +56,53 @@ const getDetailRule = async (rule_id) => {
   }
 };
 
+const fetchRuleByUrl = async (url) => {
+  try {
+    const rule = await Rule.find({
+      source_url : url
+    });
+
+    console.log(rule);
+
+    return rule;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+const updateRulesByUrl = async (url,rule) => {
+  try { 
+    const dateObject = rule.source?.pubDate ? new Date(rule.source?.pubDate) : new Date();
+    const filter = { source_url: url };
+
+    const updateData = {
+      title: rule.title,
+      description: rule.description,
+      conditions: rule.conditions,
+      actions_required: rule.actions_required,
+      severity: rule.severity,
+      source_url: url,
+      source_pubDate: dateObject,
+    };
+
+    let result = await Rule.findOneAndUpdate(
+      filter, 
+      updateData, 
+      {
+        new: true,      // return after update
+        upsert: true,   // if rule_id not exist make new
+        runValidators: true // Make sure data standard Schema
+      }
+    );
+
+    return result;
+  } catch (error) {
+    console.error("Lỗi cập nhật Rule:", error);
+    return null;
+  }
+};
+
 const updateExistRule = async (rule) => {
   try { 
     const dateObject = rule.source_pubDate ? new Date(rule.source_pubDate) : new Date();
@@ -112,6 +159,8 @@ module.exports = {
   addNewRule,
   getRules,
   getDetailRule,
+  fetchRuleByUrl,
+  updateRulesByUrl,
   updateExistRule,
   deleteRuleById
 };
