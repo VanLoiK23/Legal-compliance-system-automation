@@ -18,8 +18,8 @@ try {
         headers: form.getHeaders()
       }
     );
-
-    console.log("Gửi thành công:", response.data);
+     return response.data; 
+     
   } catch (error) {
     console.error("Lỗi gửi webhook:", error.message);
   }
