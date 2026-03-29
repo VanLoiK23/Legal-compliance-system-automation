@@ -5,6 +5,7 @@ const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_
 const {auth,authIsAdmin} = require('../middlewares/auth')
 const { receiveData ,getMetadata, deleteMetadata} = require('../controllers/metadataController');
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
+const {checkFiles} = require('../controllers/checkFilesController')
 //apply middleware for all
 // router.use([auth]);
 const upload = require('../middlewares/upload');
@@ -36,5 +37,8 @@ router.post('/receive', receiveData);
 router.delete('/receive/:id', deleteMetadata);
 //process uploadfile metadata from frontend
 router.post('/uploadData',upload.single('file'),ProcessUploadData)
+//checkfile exist - hashfile api
+router.post('/checkFiles', checkFiles);
+
 
 module.exports = router;
