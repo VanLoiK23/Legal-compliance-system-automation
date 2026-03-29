@@ -18,4 +18,30 @@ const saveComplianceResult = async (req, res) => {
     }
 };
 
-module.exports = { saveComplianceResult };
+
+
+// Lấy toàn bộ danh sách kết quả để hiện lên bảng Management
+const getAllResults = async (req, res) => {
+    try {
+        const results = await ComplianceResult.find().sort({ timestamp: -1 });
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi lấy danh sách", error: error.message });
+    }
+};
+
+const getResultById = async (req, res) => {
+    try {
+        const result = await ComplianceResult.findById(req.params.id);
+        if (!result) return res.status(404).json({ message: "Không tìm thấy" });
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi lấy chi tiết", error: error.message });
+    }
+};
+
+module.exports = { 
+    saveComplianceResult, 
+    getAllResults, 
+    getResultById 
+};

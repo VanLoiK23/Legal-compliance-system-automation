@@ -25,7 +25,11 @@ router.get('/logging',fetchLog);
 router.post('/receive', receiveData);
 module.exports = router;
 
-const { saveComplianceResult } = require('../controllers/complianceController');
+const { saveComplianceResult, getAllResults, getResultById } = require('../controllers/complianceController');
+
+router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
+router.get('/compliance-results', getAllResults);         // Endpoint 2 (Mới)
+router.get('/compliance-results/:id', getResultById);     // Endpoint 3 (Mới)
 
 // Route này để n8n gọi tới
 router.post('/compliance-results', saveComplianceResult);
