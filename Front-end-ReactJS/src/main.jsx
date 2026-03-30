@@ -11,7 +11,7 @@ import { AuthWrapper } from './components/context/auth.context.jsx';
 import Dashboard from './pages/admin/dashboard.jsx';
 import RuleManagement from './pages/admin/rule_management.jsx';
 import UploadPage from './components/UploadPage.jsx';
-
+import DocumentManagement from './pages/admin/DocumentManagement.jsx'; 
 
 const router = createBrowserRouter([
   {
@@ -46,7 +46,10 @@ const router = createBrowserRouter([
       {
         path: "rules",
         element: <RuleManagement />
-      },
+      },{
+  path: "documents",
+  element: <DocumentManagement />
+}
     ]
   },
   {
