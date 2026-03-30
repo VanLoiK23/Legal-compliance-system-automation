@@ -1,27 +1,27 @@
-require('dotenv').config();
+require('dotenv').config(); // Nạp biến môi trường ngay tại đây cho chắc chắn
 const mongoose = require('mongoose');
 
-const dbState = [{
-    value: 0,
-    label: "Disconnected"
-},
-{
-    value: 1,
-    label: "Connected"
-},
-{
-    value: 2,
-    label: "Connecting"
-},
-{
-    value: 3,
-    label: "Disconnecting"
-}];
-
-
 const connection = async () => {
-    await mongoose.connect(process.env.MONGO_DB_URL);
-    const state = Number(mongoose.connection.readyState);
-    console.log(dbState.find(f => f.value === state).label, "to database"); // connected to db
+    // LOG ĐỂ KIỂM TRA (Sẽ hiện ra terminal)
+    console.log("------------------------------------------");
+    console.log("🔍 ĐANG KIỂM TRA BIẾN MÔI TRƯỜNG...");
+    console.log(">>> MONGO_DB_URI:", process.env.MONGO_DB_URI);
+    console.log("------------------------------------------");
+
+    const uri = process.env.MONGO_DB_URI;
+
+    if (!uri) {
+        console.error("❌ LỖI: Biến MONGODB_URI bị undefined. Hãy kiểm tra file .env!");
+        return; 
+    }
+
+    try {
+        await mongoose.connect(uri);
+        console.log("✅ [DATABASE] Kết nối MongoDB Atlas thành công!");
+    } catch (error) {
+        console.log("❌ [DATABASE] Lỗi kết nối: ", error);
+        throw error;
+    }
 }
+
 module.exports = connection;
