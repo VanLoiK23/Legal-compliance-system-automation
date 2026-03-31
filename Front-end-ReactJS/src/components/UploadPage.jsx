@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 
 export default function UploadPage() {
+  const URL_HOST = import.meta.env.VITE_URL_HOST;
   const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState({
     employeeName: "",
@@ -41,7 +42,7 @@ export default function UploadPage() {
     Object.keys(metadata).forEach((key) => formData.append(key, metadata[key])); 
 
     try { 
-      const res = await fetch("http://localhost:5000/v1/api/uploadData", { method: "POST", body: formData });
+      const res = await fetch(`${URL_HOST}/v1/api/uploadData`, { method: "POST", body: formData });
 
       let data;
       try {
