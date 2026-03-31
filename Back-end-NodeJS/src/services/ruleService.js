@@ -19,6 +19,7 @@ const addNewRule = async (rule) => {
       source_url: rule.source.url,
       source_pubDate: dateObject,
       extracted_at: vnTime,
+      status: 'Active'
     });
     return result;
   } catch (error) {

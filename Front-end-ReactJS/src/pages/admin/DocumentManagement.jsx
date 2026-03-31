@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import instance from "../../utils/axios.customize";
 
 const DocumentManagement = () => {
 
@@ -20,8 +21,8 @@ const DocumentManagement = () => {
  useEffect(() => {
     const fetchDocuments = async () => {
         try {
-            const res = await fetch(
-                `${URL_HOST}/v1/api/receive?page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(searchTerm)}`
+            const res = await instance.get(
+                `/receive?page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(searchTerm)}`
             );
 
             if (!res.ok) throw new Error("API lỗi");
@@ -45,9 +46,7 @@ const DocumentManagement = () => {
 
 const deleteDocument = async (id) => {
   try {
-    const res = await fetch(`${URL_HOST}/v1/api/receive/${id}`, {
-      method: "DELETE"
-    });
+    const res = await instance.delete(`/receive/${id}`);
 
     if (!res.ok) throw new Error("API lỗi");
 
