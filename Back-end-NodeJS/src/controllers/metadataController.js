@@ -14,17 +14,19 @@ const receiveData = async (req, res) => {
   }
 };
 //read data
-const getMetadata = async (req, res) => {
+const getData = async (req, res) => {
   try {
-    const result = await dataService.getDataService();
+    let { page = 1, limit = 5, search = "" } = req.query;
 
-    return res.json({
-      message: 'get metadata thành công',
-      data: result
-    });
+    page = Number(page);
+    limit = Number(limit);
+
+    const result = await dataService.getDataService(page, limit, search);
+
+    res.json(result);
 
   } catch (err) {
-    return res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 //xóa 1 data
@@ -41,4 +43,4 @@ const deleteMetadata = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
-module.exports = { receiveData,getMetadata ,deleteMetadata};
+module.exports = { receiveData,getData ,deleteMetadata};

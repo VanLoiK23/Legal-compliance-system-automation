@@ -22,17 +22,43 @@ const saveDataService = async (data) => {
     throw err;
   }
 };
-const getDataService = async () => {
+const getDataService = async (page = 1, limit = 5, search = "") => {
   try {
-     const data = await MetaData.find();
-    return data;
+    const skip = (page - 1) * limit;
+
+  
+      const query = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { employeeName: { $regex: search, $options: "i" } },
+            { company: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { text: { $regex: search, $options: "i" } }
+          ]
+        }
+      : {};
+
+
+    const data = await MetaData.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+console.log(query)
+    const total = await MetaData.countDocuments(query);
+
+    return {
+      data,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalItems: total
+    };
 
   } catch (err) {
-    console.error(' Lỗi save DB:', err);
+    console.error('Lỗi get data:', err);
     throw err;
   }
 };
- 
 
 const deleteDataService = async (idData) => {
   try {
