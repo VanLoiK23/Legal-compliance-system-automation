@@ -17,13 +17,28 @@ const ComplianceManagement = () => {
   const [loading, setLoading] = useState(true);
 
   // 1. Lấy dữ liệu từ Backend
-  const fetchResults = async () => {
+const fetchResults = async () => {
     try {
       setLoading(true);
       const res = await axios.get("/v1/api/compliance-results");
-      if (res && res.data) setResults(res.data);
+      
+      // LOG ĐỂ BẠN KIỂM TRA DỮ LIỆU THẬT Ở TAB CONSOLE
+      console.log("Dữ liệu API trả về:", res);
+
+      // Xử lý dữ liệu an toàn cho mọi trường hợp (Axios thường bọc trong .data)
+      let data = [];
+      if (Array.isArray(res)) {
+        data = res;
+      } else if (res && Array.isArray(res.data)) {
+        data = res.data;
+      } else if (res && res.data && Array.isArray(res.data.data)) {
+        data = res.data.data;
+      }
+
+      setResults(data);
     } catch (err) {
       console.error("Lỗi fetch API:", err);
+      setResults([]); // Nếu lỗi, gán mảng rỗng để không bị crash trang
     } finally {
       setLoading(false);
     }
@@ -33,6 +48,8 @@ const ComplianceManagement = () => {
 
   // 2. Logic Lọc dữ liệu
   const filteredResults = useMemo(() => {
+    if (!Array.isArray(results)) return [];
+    
     return results.filter((item) => {
       const matchesSearch = item.evidenceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             item.matchedRuleId.toLowerCase().includes(searchTerm.toLowerCase());
