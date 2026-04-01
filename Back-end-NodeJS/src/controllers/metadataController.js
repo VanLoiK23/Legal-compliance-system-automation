@@ -13,15 +13,21 @@ const receiveData = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
-//read data
+// read data
 const getData = async (req, res) => {
   try {
-    let { page = 1, limit = 5, search = "" } = req.query;
+    let { page = 1, limit = 5, search = "", status = "", docType = "" } = req.query;
 
     page = Number(page);
     limit = Number(limit);
 
-    const result = await dataService.getDataService(page, limit, search);
+    const result = await dataService.getDataService(
+      page,
+      limit,
+      search,
+      status,
+      docType
+    );
 
     res.json(result);
 
