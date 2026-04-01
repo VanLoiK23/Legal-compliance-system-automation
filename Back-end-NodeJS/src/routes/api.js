@@ -36,7 +36,7 @@ router.get('/receive', getData);
 router.post('/receive', receiveData);
  
 
-const { saveComplianceResult, getAllResults, getResultById } = require('../controllers/complianceController');
+const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats } = require('../controllers/complianceController');
 
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
 router.get('/compliance-results', getAllResults);         // Endpoint 2 (Mới)
