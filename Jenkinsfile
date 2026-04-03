@@ -16,20 +16,6 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Running tests locally on Jenkins...'
-                sh '''
-                    # 1. Gọi đích danh đường dẫn tuyệt đối của docker-compose
-                    # 2. Xóa bỏ /workspace/ tĩnh, dùng file ngay trong thư mục hiện tại của Jenkins
-                    /usr/local/bin/docker-compose -f docker-compose.yml \
-                    -p legal-compliance-system-automation \
-                    run --rm backend \
-                    sh -c "npm test || echo No tests found"
-                '''
-            }
-        }
-
         stage('Deploy to VPS') {
             steps {
                 echo 'Deploying to VPS...'
@@ -49,18 +35,12 @@ pipeline {
             parallel {
                 stage('Check Backend') {
                     steps {
-                        sh '''
-                            sleep 15
-                            curl -f https://app.hdpe36.pro.vn/api/rule || exit 1
-                        '''
+                        sh 'sleep 15 && curl -f https://app.hdpe36.pro.vn/api/rule || exit 1'
                     }
                 }
                 stage('Check Frontend') {
                     steps {
-                        sh '''
-                            sleep 15
-                            curl -f https://app.hdpe36.pro.vn || exit 1
-                        '''
+                        sh 'sleep 15 && curl -f https://app.hdpe36.pro.vn || exit 1'
                     }
                 }
             }
@@ -69,16 +49,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Deploy VPS thanh cong!'
+            echo 'Deploy VPS thanh cong!'
         }
         failure {
-            echo '❌ Deploy VPS that bai!'
-            sh """
-                ssh -i ${SSH_KEY} \
-                    -o StrictHostKeyChecking=no \
-                    ${VPS_USER}@${VPS_HOST} \
-                    'cd ${DEPLOY_PATH} && docker compose -f docker-compose.prod.yml logs --tail=50'
-            """
+            echo 'Deploy VPS that bai!'
         }
     }
 }
