@@ -14,23 +14,9 @@ pipeline {
             }
         }
 
-        stage('Build Frontend (React)') {
+         stage('Deploy') {
             steps {
-                echo 'Building React App using Docker...'
-               sh '''
-                docker run --rm \
-                -v /workspace/Front-end-ReactJS:/app \
-                -w /app \
-                node:18-alpine \
-                sh -c "npm install && npm run build"
-            '''
-            }
-        }
-
-        stage('Deploy with Docker Compose') {
-            steps {
-                echo 'Deploying Backend & Nginx...'
-                // Lúc này lệnh compose chỉ làm nhiệm vụ dựng Backend và Nginx lên
+                echo 'Deploying...'
                 sh 'docker-compose up -d --build'
                 sh 'docker image prune -f'
             }
