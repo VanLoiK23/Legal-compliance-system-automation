@@ -1,43 +1,90 @@
-const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById, fetchRuleByUrl, updateRulesByUrl, getRulesThisWeek} = require('../services/ruleService');
+const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById, fetchRuleByUrl, updateRulesByUrl, getRulesThisWeek, getRulesIsEffect} = require('../services/ruleService');
 const {addLogging,getLogging, getLastLogTypeW1} = require('../services/loggingService');
+const redisClient = require('../utils/redis');
 
 const getRuleExist = async (req, res) => {
-    try{
-        const data =await getRules();
-        console.log(data)
-        if(data){
-            if(Array.isArray(data)){
-                let rules = data.map(rule=>{
-                    const utcDate = rule.source_pubDate;
-                    const dateObjPubDate = new Date(utcDate);
-    
-                    const formattedDate = dateObjPubDate.toLocaleDateString('vi-VN', {
-                       timeZone: 'Asia/Ho_Chi_Minh'
-                    });
-    
-                    const dateObjExtract = new Date(rule.extracted_at);
-                    const formattedFull = dateObjExtract.toLocaleString('en-GB', { 
-                        timeZone: 'Asia/Ho_Chi_Minh' 
-                      }).replace(',', '');
-    
-                    const ruleJ = {id:rule.rule_id,'source.url': rule.source_url,'source.pubDate': formattedDate,...rule._doc,'extracted_at':formattedFull}
-                    return ruleJ
-                })
-    
-                return res.status(200).json(rules);
-            }
+  try {
+      const cacheKey = "rules:all"; // Key riêng cho tất cả luật
+      
+      // 1. Kiểm tra cache
+      if (redisClient.isOpen) {
+        const cachedRules = await redisClient.get(cacheKey);
+        if (cachedRules) {
+          console.log("⚡ [Redis] Trả về dữ liệu từ Cache (getRuleExist)");
+          return res.status(200).json(JSON.parse(cachedRules));
         }
-    
-        return res.status(500).json({
-            message: "Fetch data fail!!"
-        });
-    }catch(err){
-        console.log(err)
-        return res.status(500).json({
-            message: "Fetch data fail!!"
-        });
-    }
+      }
+
+      // 2. Nếu không có cache, lấy từ DB
+      const data = await getRules();
+      if (data && Array.isArray(data)) {
+          const rules = formatRuleData(data); 
+
+          // 3. Lưu vào Redis (Cache trong 1 tiếng - 3600 giây)
+          if (redisClient.isOpen) {await redisClient.setEx(cacheKey, 3600, JSON.stringify(rules));}
+          
+          return res.status(200).json(rules);
+      }
+
+      return res.status(500).json({ message: "Fetch data fail!!" });
+  } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Internal Server Error" });
+  }
 }
+
+const getRuleCheckCompliance = async (req, res) => {
+  try {
+      const cacheKey = "rules:effective"; // Key riêng cho luật đang có hiệu lực
+      
+      // 1. Kiểm tra cache
+      if (redisClient.isOpen) {
+        const cachedRules = await redisClient.get(cacheKey);
+        if (cachedRules) {
+            console.log("⚡ [Redis] Trả về dữ liệu từ Cache (getRuleCheckCompliance)");
+            return res.status(200).json(JSON.parse(cachedRules));
+        }
+      }
+
+      // 2. Lấy từ DB
+      const data = await getRulesIsEffect();
+      if (data && Array.isArray(data)) {
+          const rules = formatRuleData(data);
+
+          // 3. Lưu vào Redis
+          if (redisClient.isOpen) {await redisClient.setEx(cacheKey, 3600, JSON.stringify(rules));}
+          
+          return res.status(200).json(rules);
+      }
+
+      return res.status(500).json({ message: "Fetch data fail!!" });
+  } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+const formatRuleData = (data) => {
+  return data.map(rule => {
+      const dateObjPubDate = new Date(rule.source_pubDate);
+      const formattedDate = dateObjPubDate.toLocaleDateString('vi-VN', {
+          timeZone: 'Asia/Ho_Chi_Minh'
+      });
+
+      const dateObjExtract = new Date(rule.extracted_at);
+      const formattedFull = dateObjExtract.toLocaleString('en-GB', {
+          timeZone: 'Asia/Ho_Chi_Minh'
+      }).replace(',', '');
+
+      return {
+          id: rule.rule_id,
+          'source.url': rule.source_url,
+          'source.pubDate': formattedDate,
+          ...rule._doc,
+          'extracted_at': formattedFull
+      };
+  });
+};
 
 const upsertRule = async (req,res)=>{
 
@@ -56,6 +103,11 @@ const upsertRule = async (req,res)=>{
     
                 console.log(result)
             });
+        }
+
+        if (redisClient.isOpen) {
+          await redisClient.del("rules:all");
+          await redisClient.del("rules:effective");
         }
 
         return res.status(200).json(
@@ -84,6 +136,11 @@ const updateRule = async (req,res)=>{
     
         console.log(result)
 
+        if (redisClient.isOpen) {
+          await redisClient.del("rules:all");
+          await redisClient.del("rules:effective");
+        }
+
         return res.status(200).json(
             {
                 rules:rule,
@@ -107,6 +164,10 @@ const deleteRule = async (req,res)=>{
         let result = deleteRuleById(rule_id);
     
         console.log(result)
+        if (redisClient.isOpen) {
+          await redisClient.del("rules:all");
+          await redisClient.del("rules:effective");
+        }
 
         return res.status(200).json(
             {
@@ -287,6 +348,10 @@ const insertLog = async (req,res)=>{
 
         console.log(result)
 
+        if (redisClient.isOpen) {
+          await redisClient.del("logs:all");
+        }
+
         return res.status(200).json(
             {
                 message: 'success'
@@ -304,7 +369,19 @@ const insertLog = async (req,res)=>{
 const fetchLog = async (req,res)=>{
 
     try{
+
+      const cacheKey = "logs:all";
+      
+      if (redisClient.isOpen) {
+        const cachedLogs = await redisClient.get(cacheKey);
+        if (cachedLogs) {
+            return res.status(200).json(JSON.parse(cachedLogs));
+        }
+      }
+
         const result =await getLogging();
+
+        if (redisClient.isOpen) {await redisClient.setEx(cacheKey, 3600, JSON.stringify(result));}
 
         return res.status(200).json(result);
 
@@ -325,4 +402,4 @@ const fetchLastLogW1 = async (req,res)=>{
     }
 }
 
-module.exports = {getRuleExist,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchRuleWeekly,fetchLog,insertLog,fetchLastLogW1}
+module.exports = {getRuleExist,getRuleCheckCompliance,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchRuleWeekly,fetchLog,insertLog,fetchLastLogW1}

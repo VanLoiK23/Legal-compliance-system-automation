@@ -42,6 +42,19 @@ const getRules = async () => {
   }
 };
 
+const getRulesIsEffect = async () => {
+  try {
+    //get All rule for check compliance 
+    const rules = await Rule.find({status:'Active'});
+
+
+    return rules;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
 const getDetailRule = async (rule_id) => {
   try {
     const rule = await Rule.find({
@@ -173,6 +186,7 @@ const deleteRuleById = async (ruleId) => {
 module.exports = {
   addNewRule,
   getRules,
+  getRulesIsEffect,
   getDetailRule,
   fetchRuleByUrl,
   updateRulesByUrl,
