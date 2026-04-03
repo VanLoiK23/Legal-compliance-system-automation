@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = '/workspace/docker-compose.yml'
-        COMPOSE_PROJECT_NAME = 'legal-compliance-system-automation' // xác nhận lại tên này
+        VPS_HOST = '103.200.22.83'
+        VPS_USER = 'root'
+        DEPLOY_PATH = '/var/www/Legal-compliance-system-automation'
+        SSH_KEY = '/var/jenkins_home/.ssh/jenkins_vps'
     }
 
     stages {
@@ -14,21 +16,30 @@ pipeline {
             }
         }
 
-         stage('Deploy') {
-            steps {
-                echo 'Deploying...'
-                sh 'docker-compose up -d --build'
-                sh 'docker image prune -f'
-            }
-        }
-
         stage('Test') {
             steps {
                 echo 'Running tests...'
                 sh '''
-                    docker-compose run --rm backend \
+                    docker-compose -f /workspace/docker-compose.yml \
+                    -p legal-compliance-system-automation \
+                    run --rm backend \
                     sh -c "npm test || echo No tests found"
                 '''
+            }
+        }
+
+        stage('Deploy to VPS') {
+            steps {
+                echo 'Deploying to VPS...'
+                sh """
+                    ssh -i ${SSH_KEY} \
+                        -o StrictHostKeyChecking=no \
+                        ${VPS_USER}@${VPS_HOST} \
+                        'cd ${DEPLOY_PATH} && \
+                         git pull origin main && \
+                         docker compose -f docker-compose.prod.yml up -d --build && \
+                         docker image prune -f'
+                """
             }
         }
 
@@ -37,16 +48,16 @@ pipeline {
                 stage('Check Backend') {
                     steps {
                         sh '''
-                            sleep 10
-                            curl -f http://localhost/api/rule || exit 1
+                            sleep 15
+                            curl -f https://app.hdpe36.pro.vn/api/rule || exit 1
                         '''
                     }
                 }
                 stage('Check Frontend') {
                     steps {
                         sh '''
-                            sleep 10
-                            curl -f http://localhost || exit 1
+                            sleep 15
+                            curl -f https://app.hdpe36.pro.vn || exit 1
                         '''
                     }
                 }
@@ -56,11 +67,16 @@ pipeline {
 
     post {
         success {
-            echo 'Deploy toan bo thanh cong!'
+            echo 'Deploy VPS thanh cong!'
         }
         failure {
-            echo 'Deploy that bai! Kiem tra logs.'
-            sh 'docker-compose logs --tail=50'
+            echo 'Deploy VPS that bai!'
+            sh """
+                ssh -i ${SSH_KEY} \
+                    -o StrictHostKeyChecking=no \
+                    ${VPS_USER}@${VPS_HOST} \
+                    'cd ${DEPLOY_PATH} && docker compose -f docker-compose.prod.yml logs --tail=50'
+            """
         }
     }
 }
