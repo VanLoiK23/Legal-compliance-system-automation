@@ -13,6 +13,8 @@ import RuleManagement from './pages/admin/rule_management.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import DocumentManagement from './pages/admin/DocumentManagement.jsx'; 
 import ComplianceManagement from './pages/admin/ComplianceManagement.jsx';
+import SystemLogViewer from './pages/admin/LoggingManagement.jsx';
+import LawSourceConfig from './pages/admin/ConfigManagement.jsx';
 
 const router = createBrowserRouter([
   {
@@ -53,6 +55,12 @@ const router = createBrowserRouter([
       },{
         path: "compliance",
         element: <ComplianceManagement />
+      },{
+        path: "loggings",
+        element: <SystemLogViewer />
+      },{
+        path: "settings",
+        element: <LawSourceConfig />
       }
     ]
   },

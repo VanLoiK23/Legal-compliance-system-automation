@@ -9,6 +9,7 @@ import {
   LogOut,
   Bell,
   UserCircle,
+  Logs,
 } from "lucide-react";
 
 // Cấu hình menu - Dựa trên đề tài của bạn
@@ -18,6 +19,7 @@ const menuItems = [
   { name: "Hồ sơ tài liệu (W2)", icon: FileText, path: "documents" },
   { name: "Kiểm tra tuân thủ (W3)", icon: ShieldAlert, path: "compliance" },
   { name: "Cài đặt hệ thống", icon: Settings, path: "settings" },
+  { name: "Logging", icon: Logs, path: "loggings" },
 ];
 
 const MainLayout = ({ children }) => {
@@ -70,7 +72,7 @@ const MainLayout = ({ children }) => {
 
         {/* Phần dưới cùng Sidebar: User/LogOut */}
         <hr className="text-secondary mt-4" />
-        <div className="d-flex align-items-center gap-3 px-2 py-2 mb-2">
+        {/* <div className="d-flex align-items-center gap-3 px-2 py-2 mb-2">
           <UserCircle size={40} className="text-secondary" />
           <div>
             <div className="fw-bold">Nguyễn Văn A</div>
@@ -79,7 +81,7 @@ const MainLayout = ({ children }) => {
         </div>
         <button className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center gap-2 w-100 rounded-3">
           <LogOut size={16} /> Đăng xuất
-        </button>
+        </button> */}
       </div>
 
       {/* --- MAIN CONTENT AREA (BÊN PHẢI) --- */}
