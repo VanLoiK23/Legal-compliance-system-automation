@@ -43,6 +43,8 @@ router.get('/compliance-results', getAllResults);         // Endpoint 2 (Mới)
 router.get('/compliance-results/:id', getResultById);     // Endpoint 3 (Mới)
 router.delete('/compliance-results/:id', deleteResult); // MỚI
 router.get('/compliance-stats', getStats); // MỚI
+// router.delete('/compliance-results/:id', deleteResult); // MỚI
+// router.get('/compliance-stats', getStats); // MỚI
 // Route này để n8n gọi tới
 router.post('/compliance-results', saveComplianceResult);
 router.delete('/receive/:id', deleteMetadata);
