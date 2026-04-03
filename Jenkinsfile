@@ -53,6 +53,6 @@ pipeline {
         }
         failure {
             echo 'Deploy VPS that bai!'
-        }
+        } 
     }
 }
