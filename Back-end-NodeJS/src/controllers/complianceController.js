@@ -15,12 +15,12 @@ const saveComplianceResult = async (req, res) => {
 
         await newResult.save();
 
-        if (complianceRes === 'Vi phạm') {
-            await Rule.findOneAndUpdate(
-                { rule_id: matchedRuleId }, 
-                { $inc: { violationCount: 1 } } // $inc là lệnh tăng giá trị trong MongoDB
-            );
-        }
+        // if (complianceRes === 'Vi phạm') {
+        //     await Rule.findOneAndUpdate(
+        //         { rule_id: matchedRuleId }, 
+        //         { $inc: { violationCount: 1 } } // $inc là lệnh tăng giá trị trong MongoDB
+        //     );
+        // }
 
         res.status(201).json({ message: "✅ Lưu kết quả tuân thủ thành công!", data: newResult });
     } catch (error) {
