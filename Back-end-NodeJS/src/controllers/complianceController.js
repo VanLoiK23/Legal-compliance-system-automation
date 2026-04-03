@@ -1,5 +1,5 @@
 const ComplianceResult = require('../models/complianceResult');
-
+const Rule = require('../models/rule');
 const saveComplianceResult = async (req, res) => {
     try {
         const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain} = req.body;
