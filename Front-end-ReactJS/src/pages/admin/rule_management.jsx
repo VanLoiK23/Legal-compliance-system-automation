@@ -154,6 +154,14 @@ const RuleManagement = () => {
     return <span className={`badge rounded-pill ${styles[sev]}`}>{sev}</span>;
   };
 
+  const localFormat = (isoStr) => {
+  if(!isoStr) return "";
+  return new Date(isoStr).toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    hour12: false
+  });
+}
+
   if (loading)
     return <div className="p-4 text-center">Đang tải dữ liệu...</div>;
   if (error) return <div className="alert alert-danger m-4">{error}</div>;
@@ -608,7 +616,7 @@ const RuleManagement = () => {
                             className="form-control form-control-sm w-auto border-0"
                             value={
                               selectedRule.source_pubDate
-                                ? selectedRule.source_pubDate.split("T")[0]
+                                ? localFormat(selectedRule.source_pubDate)
                                 : ""
                             }
                             onChange={(e) =>
