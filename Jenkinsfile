@@ -16,17 +16,14 @@ pipeline {
 
         stage('Build Frontend (React)') {
             steps {
-                echo 'Building React App directly in Jenkins...'
-                // Dùng hàm dir() để Jenkins chui vào đúng thư mục Frontend
-                dir('Front-end-ReactJS') {
-                    sh '''
-                        echo "Installing dependencies..."
-                        npm install
-                        
-                        echo "Building production code..."
-                        npm run build
-                    '''
-                }
+                echo 'Building React App using Docker...'
+               sh '''
+                docker run --rm \
+                -v /workspace/Front-end-ReactJS:/app \
+                -w /app \
+                node:18-alpine \
+                sh -c "npm install && npm run build"
+            '''
             }
         }
 
