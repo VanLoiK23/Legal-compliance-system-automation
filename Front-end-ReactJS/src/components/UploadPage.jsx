@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import instance from "../../utils/axios.customize";
 
 export default function UploadPage() {
   const URL_HOST = import.meta.env.VITE_URL_HOST;
@@ -38,11 +39,11 @@ export default function UploadPage() {
     if (!files.length) return;
 
     const formData = new FormData(); 
-    formData.append("file", files[0].file); 
+    formData.append("file", files[0].fipostle); 
     Object.keys(metadata).forEach((key) => formData.append(key, metadata[key])); 
 
     try { 
-      const res = await fetch(`${URL_HOST}/v1/api/uploadData`, { method: "POST", body: formData });
+      const res = await instance.post(`/uploadData`, formData);
 
       let data;
       try {
