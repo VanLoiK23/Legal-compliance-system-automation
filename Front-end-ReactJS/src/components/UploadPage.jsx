@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import instance from "../../utils/axios.customize";
+import instance from "../utils/axios.customize";
 
 export default function UploadPage() {
   const URL_HOST = import.meta.env.VITE_URL_HOST;
