@@ -49,13 +49,19 @@ const SystemLogViewer = () => {
     return () => clearInterval(intervalRef.current);
   }, [isAutoRefresh]);
 
-  const formatTime = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleString("vi-VN", {
-      year: "numeric", month: "2-digit", day: "2-digit",
-      hour: "2-digit", minute: "2-digit", second: "2-digit",
-    }).replace(/,/g, '');
-  };
+const formatTime = (isoString) => {
+  const date = new Date(isoString);
+  return date.toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh", // Ép buộc sử dụng múi giờ Việt Nam
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false // Sử dụng định dạng 24h để tránh chữ "SA/CH"
+  }).replace(/,/g, '');
+};
 
   const getTypeColor = (type) => {
     switch (type?.toLowerCase()) {
