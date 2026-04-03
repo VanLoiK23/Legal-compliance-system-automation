@@ -22,29 +22,53 @@ const saveDataService = async (data) => {
     throw err;
   }
 };
-const getDataService = async (page = 1, limit = 5, search = "") => {
+const getDataService = async (page = 1, limit = 5, search = "", status = "", docType = "") => {
   try {
     const skip = (page - 1) * limit;
 
-  
-      const query = search
-      ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } },
-            { employeeName: { $regex: search, $options: "i" } },
-            { company: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } },
-            { text: { $regex: search, $options: "i" } }
-          ]
-        }
-      : {};
+    let query = {};
+    let andConditions = []; // 👈 FIX Ở ĐÂY
 
+    // SEARCH
+    if (search) {
+      andConditions.push({
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { employeeName: { $regex: search, $options: "i" } },
+          { company: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { text: { $regex: search, $options: "i" } }
+        ]
+      });
+    }
+
+    // STATUS FILTER
+    if (status) {
+      andConditions.push({ status: status });
+    }
+
+    // DOC TYPE FILTER (JSON TEXT)
+    if (docType) {
+      andConditions.push({
+        text: {
+          $regex: `"doc_type"\\s*:\\s*"${docType}"`,
+          $options: "i"
+        }
+      });
+    }
+
+    // GỘP QUERY
+    if (andConditions.length > 0) {
+      query.$and = andConditions;
+    }
+
+    console.log("QUERY:", query);
 
     const data = await MetaData.find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-console.log(query)
+
     const total = await MetaData.countDocuments(query);
 
     return {
@@ -59,7 +83,6 @@ console.log(query)
     throw err;
   }
 };
-
 const deleteDataService = async (idData) => {
   try {
     
