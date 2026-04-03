@@ -13,7 +13,7 @@ import RuleManagement from './pages/admin/rule_management.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import DocumentManagement from './pages/admin/DocumentManagement.jsx'; 
 import ComplianceManagement from './pages/admin/ComplianceManagement.jsx';
-
+  
 const router = createBrowserRouter([
   {
     path: "/",
