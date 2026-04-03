@@ -18,9 +18,11 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Running tests...'
+                echo 'Running tests locally on Jenkins...'
                 sh '''
-                    docker-compose -f /workspace/docker-compose.yml \
+                    # 1. Gọi đích danh đường dẫn tuyệt đối của docker-compose
+                    # 2. Xóa bỏ /workspace/ tĩnh, dùng file ngay trong thư mục hiện tại của Jenkins
+                    /usr/local/bin/docker-compose -f docker-compose.yml \
                     -p legal-compliance-system-automation \
                     run --rm backend \
                     sh -c "npm test || echo No tests found"
@@ -67,10 +69,10 @@ pipeline {
 
     post {
         success {
-            echo 'Deploy VPS thanh cong!'
+            echo '✅ Deploy VPS thanh cong!'
         }
         failure {
-            echo 'Deploy VPS that bai!'
+            echo '❌ Deploy VPS that bai!'
             sh """
                 ssh -i ${SSH_KEY} \
                     -o StrictHostKeyChecking=no \
@@ -79,5 +81,4 @@ pipeline {
             """
         }
     }
-    
 }
