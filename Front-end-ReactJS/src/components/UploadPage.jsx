@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+// Lưu ý: Đảm bảo đường dẫn này khớp với cấu trúc thư mục của bạn
 import instance from "../utils/axios.customize";
 
 export default function UploadPage() {
@@ -35,41 +36,39 @@ export default function UploadPage() {
     setMetadata({ ...metadata, [e.target.name]: e.target.value });
   };
 
+  // ĐÃ SỬA LẠI HÀM NÀY CHUẨN AXIOS
   const uploadFiles = async () => { 
     if (!files.length) return;
 
     const formData = new FormData(); 
-    formData.append("file", files[0].fipostle); 
+    // Sửa chữ fipostle thành file
+    formData.append("file", files[0].file); 
     Object.keys(metadata).forEach((key) => formData.append(key, metadata[key])); 
 
     try { 
+      // Gọi API bằng Axios
       const res = await instance.post(`/uploadData`, formData);
 
-      let data;
-      try {
-        data = await res.json(); 
-      } catch {
-        data = null;  
-      }
+      // Lấy data chuẩn Axios (hỗ trợ cả có/không có interceptor)
+      const responseData = res.data !== undefined ? res.data : res;
 
-      if (res.ok) {
-        alert(data?.message || "Upload success!");
-        // reset files + metadata
-        setFiles([]);
-        setMetadata({
-          employeeName: "",
-          birthDate: "",
-          company: "",
-          note: "",
-          email: "",
-        });
-      } else {
-        alert(data?.message || `Upload failed! Status: ${res.status}`);
-      }
+      alert(responseData?.message || "Upload success!");
+      
+      // Reset lại form sau khi thành công
+      setFiles([]);
+      setMetadata({
+        employeeName: "",
+        birthDate: "",
+        company: "",
+        note: "",
+        email: "",
+      });
 
     } catch (err) {
       console.error(err);
-      alert("Upload error!"); 
+      // Bắt thông báo lỗi từ backend trả về (nếu có), không có thì báo lỗi chung
+      const errorMessage = err.response?.data?.message || err.response?.data || "Upload error!";
+      alert(errorMessage); 
     }
   };
 
