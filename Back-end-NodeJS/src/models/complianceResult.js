@@ -8,7 +8,8 @@ const complianceResultSchema = new mongoose.Schema({
     aiReasoning: { type: String },                  // Tương ứng AI_Reasoning
     aiExplain: { type: String },
     auditorAction: { type: String, default: 'Pending' }, // Tương ứng Auditor_Action
-    timestamp: { type: Date, default: Date.now }    // Tương ứng Timestamp
+    timestamp: { type: Date, default: Date.now }, // Tương ứng Timestamp
+    riskScore: { type: Number, min: 0, max: 10, default: 0 }    
 });
 
 module.exports = mongoose.model('ComplianceResult', complianceResultSchema);
