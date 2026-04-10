@@ -2,7 +2,7 @@ const ComplianceResult = require('../models/complianceResult');
 const Rule = require('../models/rule');
 const saveComplianceResult = async (req, res) => {
     try {
-        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain} = req.body;
+        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore} = req.body;
         
         const newResult = new ComplianceResult({
             evidenceName,
@@ -10,7 +10,8 @@ const saveComplianceResult = async (req, res) => {
             complianceRes,
             aiReasoning,
             severity: severity || 'LOW',
-            aiExplain
+            aiExplain,
+            riskScore: riskScore || 0
         });
 
         await newResult.save();
