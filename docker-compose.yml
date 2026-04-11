@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - client_dist:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+      - client
+    restart: always
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./Back-end-NodeJS
+      dockerfile: Dockerfile
+    container_name: backend
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - redis
+    links:
+      - redis
+    networks:
+      - app-network
+
+  client:
+    build:
+      context: .
+      dockerfile: Front-end-ReactJS/Dockerfile
+      args:
+        - VITE_BACKEND_URL=/api
+    container_name: client
+    volumes:
+      - client_dist:/usr/share/nginx/html
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+    - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+    networks:
+      - app-network
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - .:/workspace  # mount toàn bộ project vào Jenkins
+    restart: always
+    networks:
+      - app-network
+
+volumes:
+  client_dist:
+  redis_data:
+  jenkins_data:
+
+networks:
+  app-network:
+    driver: bridge

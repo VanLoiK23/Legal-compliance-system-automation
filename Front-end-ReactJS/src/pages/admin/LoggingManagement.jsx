@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "../../utils/axios.customize";
+import instance from "../../utils/axios.customize";
 
 const SystemLogViewer = () => {
   const [logs, setLogs] = useState([]);
@@ -15,7 +15,7 @@ const SystemLogViewer = () => {
     if (!isBackground) setIsLoading(true);
     setError(null);
     try {
-      const res = await axios.get("/v1/api/logging");
+      const res = await instance.get("/logging");
       if (res && res.data) {
         setLogs(res.data);
       }
@@ -49,13 +49,19 @@ const SystemLogViewer = () => {
     return () => clearInterval(intervalRef.current);
   }, [isAutoRefresh]);
 
-  const formatTime = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleString("vi-VN", {
-      year: "numeric", month: "2-digit", day: "2-digit",
-      hour: "2-digit", minute: "2-digit", second: "2-digit",
-    }).replace(/,/g, '');
-  };
+const formatTime = (isoString) => {
+  const date = new Date(isoString);
+  return date.toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh", // Ép buộc sử dụng múi giờ Việt Nam
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false // Sử dụng định dạng 24h để tránh chữ "SA/CH"
+  }).replace(/,/g, '');
+};
 
   const getTypeColor = (type) => {
     switch (type?.toLowerCase()) {

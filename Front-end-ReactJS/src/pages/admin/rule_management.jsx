@@ -19,7 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import axios from "../../utils/axios.customize";
+import instance from "../../utils/axios.customize";
 
 const RuleManagement = () => {
   // --- STATES ---
@@ -38,13 +38,13 @@ const RuleManagement = () => {
     const fetchRules = async () => {
       try {
         setLoading(true);
-        // 1. Phải có await
-        // 2. Nên dùng URL đầy đủ hoặc cấu hình base URL
-        const res = await axios.get("/v1/api/rule");
+        const res = await instance.get("/rule");
 
-        // 3. Axios trả về data nằm trong res.data
+        console.log("API Response:", res);
+
+        console.log("API Response:", res.data);
+
         if (res && res.data) {
-          // Tùy vào cấu trúc API của bạn (có thể là res.data.items hoặc res.data)
           setRules(res.data);
         }
       } catch (err) {
@@ -60,6 +60,7 @@ const RuleManagement = () => {
 
   // --- LOGIC LỌC DỮ LIỆU ---
   const filteredRules = useMemo(() => {
+    if (!Array.isArray(rules)) return [];
     return rules.filter((rule) => {
       const matchesSearch =
         rule.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,7 +97,7 @@ const RuleManagement = () => {
     );
   
     try {
-      await axios.put(`/v1/api/rule`, updatedRule);
+      await instance.put(`/rule`, updatedRule);
       
       console.log("Cập nhật trạng thái thành công");
     } catch (error) {
@@ -111,7 +112,7 @@ const RuleManagement = () => {
   const deleteRule = async (id) => {
     try {
       if (window.confirm("Bạn có chắc chắn muốn xóa quy tắc này không?")) {
-        const response = await axios.delete(`/v1/api/rule/`+id);
+        const response = await instance.delete(`/rule/`+id);
 
         if (response.status === 200 || response.status === 201) {
           setRules(rules.filter((r) => r.id !== id));
@@ -127,7 +128,7 @@ const RuleManagement = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const response = await axios.put(`/v1/api/rule`, selectedRule);
+      const response = await instance.put(`/rule`, selectedRule);
   
       if (response.status === 200 || response.status === 201) {
         setRules(prevRules => 
@@ -152,6 +153,14 @@ const RuleManagement = () => {
     };
     return <span className={`badge rounded-pill ${styles[sev]}`}>{sev}</span>;
   };
+
+  const localFormat = (isoStr) => {
+  if(!isoStr) return "";
+  return new Date(isoStr).toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    hour12: false
+  });
+}
 
   if (loading)
     return <div className="p-4 text-center">Đang tải dữ liệu...</div>;
@@ -607,7 +616,7 @@ const RuleManagement = () => {
                             className="form-control form-control-sm w-auto border-0"
                             value={
                               selectedRule.source_pubDate
-                                ? selectedRule.source_pubDate.split("T")[0]
+                                ? localFormat(selectedRule.source_pubDate)
                                 : ""
                             }
                             onChange={(e) =>

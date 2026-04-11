@@ -18,7 +18,7 @@ import {
   Bar,
   Cell,
 } from "recharts";
-import axios from "../../utils/axios.customize";
+import instance from "../../utils/axios.customize";
 
 const Dashboard = () => {
   // 1. Khai báo đầy đủ các State
@@ -34,7 +34,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchRules = async () => {
       try {
-        const res = await axios.get("/v1/api/ruleActive");
+        const res = await instance.get("/ruleActive");
         if (res && res.data) {
           const data = res.data;
           setRuleCount(data.length);
@@ -62,7 +62,7 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get("/v1/api/compliance-fetch");
+      const res = await instance.get("/compliance-fetch");
 
       if (res && res.data) {
         // Áp dụng dữ liệu từ Controller trả về

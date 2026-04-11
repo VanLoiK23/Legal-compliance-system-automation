@@ -3,7 +3,7 @@ import {
   Search, Filter, MoreVertical, Eye, X, ShieldAlert, 
   CheckCircle2, Trash2, ChevronLeft, ChevronRight, FileSearch, AlertCircle
 } from "lucide-react";
-import axios from "../../utils/axios.customize";
+import instance from "../../utils/axios.customize";
 
 const ComplianceManagement = () => {
   const [results, setResults] = useState([]);
@@ -17,15 +17,13 @@ const ComplianceManagement = () => {
   const [loading, setLoading] = useState(true);
 
   // 1. Lấy dữ liệu từ Backend
-const fetchResults = async () => {
+  const fetchResults = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/v1/api/compliance-results");
+      const res = await instance.get("/compliance-results");
       
-      // LOG ĐỂ BẠN KIỂM TRA DỮ LIỆU THẬT Ở TAB CONSOLE
       console.log("Dữ liệu API trả về:", res);
 
-      // Xử lý dữ liệu an toàn cho mọi trường hợp (Axios thường bọc trong .data)
       let data = [];
       if (Array.isArray(res)) {
         data = res;
@@ -38,7 +36,7 @@ const fetchResults = async () => {
       setResults(data);
     } catch (err) {
       console.error("Lỗi fetch API:", err);
-      setResults([]); // Nếu lỗi, gán mảng rỗng để không bị crash trang
+      setResults([]); 
     } finally {
       setLoading(false);
     }
@@ -46,13 +44,17 @@ const fetchResults = async () => {
 
   useEffect(() => { fetchResults(); }, []);
 
-  // 2. Logic Lọc dữ liệu
+  // 2. Logic Lọc dữ liệu (Đã thêm bảo vệ dữ liệu null)
   const filteredResults = useMemo(() => {
     if (!Array.isArray(results)) return [];
     
     return results.filter((item) => {
-      const matchesSearch = item.evidenceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            item.matchedRuleId.toLowerCase().includes(searchTerm.toLowerCase());
+      // Dùng (item.truong_du_lieu || "") để không bao giờ bị lỗi toLowerCase
+      const name = item.evidenceName || "";
+      const ruleId = item.matchedRuleId || "";
+
+      const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            ruleId.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesSeverity = severityFilter === "All" || item.severity === severityFilter;
       return matchesSearch && matchesSeverity;
     });
@@ -60,20 +62,31 @@ const fetchResults = async () => {
 
   // 3. Phân trang
   const currentItems = filteredResults.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  const totalPages = Math.ceil(filteredResults.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredResults.length / itemsPerPage));
+
+  // Reset về trang 1 nếu search
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, severityFilter]);
 
   // 4. Xóa kết quả
   const handleDelete = async (id) => {
     if (window.confirm("Xóa bản ghi này?")) {
-      await axios.delete(`/v1/api/compliance-results/${id}`);
-      fetchResults();
-      setActiveMenuId(null);
+      try {
+        await instance.delete(`/compliance-results/${id}`);
+        fetchResults();
+      } catch (err) {
+        console.error("Lỗi xóa", err);
+        alert("Xóa thất bại!");
+      } finally {
+        setActiveMenuId(null);
+      }
     }
   };
 
   const getSeverityBadge = (sev) => {
     const styles = { HIGH: "bg-danger", MEDIUM: "bg-warning text-dark", LOW: "bg-info text-dark" };
-    return <span className={`badge rounded-pill ${styles[sev] || 'bg-secondary'}`}>{sev}</span>;
+    return <span className={`badge rounded-pill ${styles[sev] || 'bg-secondary'}`}>{sev || 'UNKNOWN'}</span>;
   };
 
   if (loading) return <div className="p-4 text-center">Đang tải kết quả kiểm tra...</div>;
@@ -112,7 +125,7 @@ const fetchResults = async () => {
       </div>
 
       {/* Table */}
-      <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div className="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
             <thead className="bg-light text-muted small fw-bold text-uppercase">
@@ -126,39 +139,68 @@ const fetchResults = async () => {
               </tr>
             </thead>
             <tbody>
-              {currentItems.map((item) => (
-                <tr key={item._id}>
-                  <td className="ps-4 fw-bold">{item.evidenceName}</td>
-                  <td><span className="badge bg-soft-primary text-primary">{item.matchedRuleId}</span></td>
-                  <td>
-                    <span className={`badge ${item.complianceRes === 'Vi phạm' ? 'text-danger' : 'text-success'}`}>
-                      {item.complianceRes === 'Vi phạm' ? <ShieldAlert size={14} className="me-1"/> : <CheckCircle2 size={14} className="me-1"/>}
-                      {item.complianceRes}
-                    </span>
-                  </td>
-                  <td>{getSeverityBadge(item.severity)}</td>
-                  <td className="text-muted small">{new Date(item.timestamp).toLocaleString('vi-VN')}</td>
-                  <td className="pe-4 text-end position-relative">
-                    <button className="btn btn-icon btn-light rounded-circle" onClick={() => setActiveMenuId(activeMenuId === item._id ? null : item._id)}>
-                      <MoreVertical size={18} />
-                    </button>
-                    {activeMenuId === item._id && (
-                      <div className="position-absolute shadow-lg border-0 rounded-3 bg-white py-2 shadow-menu" style={{ right: "45px", top: "10px", zIndex: 1050, width: "160px" }}>
-                        <button className="dropdown-item d-flex align-items-center gap-2 py-2" onClick={() => { setSelectedResult(item); setShowModal(true); setActiveMenuId(null); }}>
-                          <Eye size={16} className="text-primary" /> Chi tiết AI
-                        </button>
-                        <button className="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" onClick={() => handleDelete(item._id)}>
-                          <Trash2 size={16} /> Xóa kết quả
-                        </button>
-                      </div>
-                    )}
-                  </td>
+              {currentItems.length > 0 ? (
+                currentItems.map((item) => (
+                  <tr key={item._id}>
+                    <td className="ps-4 fw-bold">{item.evidenceName}</td>
+                    <td><span className="badge bg-soft-primary text-primary">{item.matchedRuleId}</span></td>
+                    <td>
+                      <span className={`badge ${item.complianceRes === 'Vi phạm' ? 'text-danger' : 'text-success'}`}>
+                        {item.complianceRes === 'Vi phạm' ? <ShieldAlert size={14} className="me-1"/> : <CheckCircle2 size={14} className="me-1"/>}
+                        {item.complianceRes}
+                      </span>
+                    </td>
+                    <td>{getSeverityBadge(item.severity)}</td>
+                    <td className="text-muted small">{new Date(item.timestamp).toLocaleString('vi-VN')}</td>
+                    <td className="pe-4 text-end position-relative">
+                      <button className="btn btn-icon btn-light rounded-circle" onClick={() => setActiveMenuId(activeMenuId === item._id ? null : item._id)}>
+                        <MoreVertical size={18} />
+                      </button>
+                      {activeMenuId === item._id && (
+                        <div className="position-absolute shadow-lg border-0 rounded-3 bg-white py-2 shadow-menu" style={{ right: "45px", top: "10px", zIndex: 1050, width: "160px" }}>
+                          <button className="dropdown-item d-flex align-items-center gap-2 py-2" onClick={() => { setSelectedResult(item); setShowModal(true); setActiveMenuId(null); }}>
+                            <Eye size={16} className="text-primary" /> Chi tiết AI
+                          </button>
+                          <button className="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" onClick={() => handleDelete(item._id)}>
+                            <Trash2 size={16} /> Xóa kết quả
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center py-4 text-muted">Không tìm thấy dữ liệu phù hợp</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* ĐÃ BỔ SUNG: Thanh Phân Trang (Pagination) */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-between align-items-center mt-2 px-2">
+          <span className="text-muted small">Trang {currentPage} / {totalPages}</span>
+          <div className="btn-group shadow-sm">
+            <button 
+              className="btn btn-light border" 
+              disabled={currentPage === 1} 
+              onClick={() => setCurrentPage(p => p - 1)}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button 
+              className="btn btn-light border" 
+              disabled={currentPage === totalPages} 
+              onClick={() => setCurrentPage(p => p + 1)}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal Chi tiết AI */}
       {showModal && selectedResult && (
@@ -173,11 +215,15 @@ const fetchResults = async () => {
                 <div className="row g-4">
                   <div className="col-md-6">
                     <label className="text-muted small fw-bold">LÝ DO VI PHẠM (AI REASONING)</label>
-                    <div className="p-3 bg-light rounded-3 mt-2">{selectedResult.aiReasoning}</div>
+                    <div className="p-3 bg-light rounded-3 mt-2" style={{ maxHeight: "300px", overflowY: "auto" }}>
+                      {selectedResult.aiReasoning}
+                    </div>
                   </div>
                   <div className="col-md-6">
                     <label className="text-muted small fw-bold">GIẢI THÍCH CHUYÊN SÂU (AI EXPLAIN)</label>
-                    <div className="p-3 bg-soft-primary rounded-3 mt-2 text-primary">{selectedResult.aiExplain || "Chưa có giải thích chi tiết."}</div>
+                    <div className="p-3 bg-soft-primary rounded-3 mt-2 text-primary" style={{ maxHeight: "300px", overflowY: "auto" }}>
+                      {selectedResult.aiExplain || "Chưa có giải thích chi tiết."}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -189,7 +235,7 @@ const fetchResults = async () => {
         </div>
       )}
 
-      {/* Styles (Dùng chung với RuleManagement) */}
+      {/* Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
         .bg-soft-primary { background-color: #eef2ff; color: #4338ca; }
         .shadow-menu { box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; border: 1px solid #eee !important; }

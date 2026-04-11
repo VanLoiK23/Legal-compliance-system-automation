@@ -85,4 +85,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
      </AuthWrapper>
   </React.StrictMode>,
 )
-

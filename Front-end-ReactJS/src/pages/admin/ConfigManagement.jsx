@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../../utils/axios.customize";
+import instance from "../../utils/axios.customize";
 
 const LawSourceConfig = () => {
   const [urlRss, setUrlRss] = useState("");
@@ -10,7 +10,7 @@ const LawSourceConfig = () => {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await axios.get("/v1/api/config");
+        const res = await instance.get("/config");
         if (res && res.data) {
           setUrlRss(res.data.url_rss);
           setNumberLimit(res.data.number_limit);
@@ -28,7 +28,7 @@ const LawSourceConfig = () => {
     setStatusMessage(null);
 
     try {
-      await axios.post(`/v1/api/config`, {
+      await instance.post(`/config`, {
         url_rss: urlRss,
         number_limit: parseInt(numberLimit, 10),
       });
