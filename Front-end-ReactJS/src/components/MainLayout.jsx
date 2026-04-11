@@ -19,6 +19,7 @@ const menuItems = [
   { name: "Hồ sơ tài liệu (W2)", icon: FileText, path: "documents" },
   { name: "Kiểm tra tuân thủ (W3)", icon: ShieldAlert, path: "compliance" },
   { name: "Cài đặt hệ thống", icon: Settings, path: "settings" },
+  { name: "Credential Gmail", icon: Settings, path: "credential-gmail" },
   { name: "Logging", icon: Logs, path: "loggings" },
 ];
 
