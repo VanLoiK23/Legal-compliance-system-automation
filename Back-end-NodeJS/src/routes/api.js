@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 // const {register,signin,fetchUser,deleteUserById,updateUserById} = require('../controllers/usersController')
 const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_rule_exist, check_change_and_update, fetchRuleWeekly, fetchLastLogW1, getRuleCheckCompliance} = require('../controllers/ruleController')
-const {auth,authIsAdmin} = require('../middlewares/auth')
+const {auth,authIsAdmin,checkIsValidOrigin} = require('../middlewares/auth')
 const { receiveData ,getData, deleteMetadata} = require('../controllers/metadataController');
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
 const {checkFiles} = require('../controllers/checkFilesController')
@@ -17,6 +17,9 @@ router.get('/', (req,res)=>{
         mess:'Hello world API'
     })
 }); 
+
+//apply middleware for all routes
+router.use(checkIsValidOrigin);
 
 //workflow 1
 router.post('/rule',upsertRule);

@@ -45,4 +45,36 @@ const authIsAdmin = (req, res, next) => {
     next();
 };
 
-module.exports = { auth, authIsAdmin };
+const checkIsValidOrigin = (req, res, next) => {
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || "";
+    const origin = req.get('origin') || req.get('referer') || "";
+
+    console.log(`Debug - IP: ${clientIp}, Origin: ${origin}`);
+
+    const white_list = [
+        '103.200.22.83', 
+        '127.0.0.1', 
+        '::1', 
+        '172.19.0.1' //ip docker host, dành cho dev khi chạy backend trong container và frontend trên máy local
+    ];
+
+    // Kiểm tra nếu IP thuộc danh sách tin cậy
+    if (white_list.some(ip => clientIp.includes(ip))) {
+        return next();
+    }
+
+    // Kiểm tra Front-end Production
+    if (origin.includes('app.hdpe36.pro.vn')) {
+        return next();
+    }
+
+    // Kiểm tra nếu là localhost (Dành cho Front-end dev)
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return next();
+    }
+
+    return res.status(403).json({ message: "IP hoặc Nguồn không hợp lệ!" });
+};
+
+
+module.exports = { auth, authIsAdmin,checkIsValidOrigin };
