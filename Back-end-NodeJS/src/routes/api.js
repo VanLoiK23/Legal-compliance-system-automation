@@ -12,6 +12,7 @@ const { saveComplianceResult, getAllResults, getResultById, deleteResult, getSta
 // router.use([auth]);
 const upload = require('../middlewares/upload');
 const { upsertConfig, fetch_config } = require('../controllers/configController');
+const { upsertCredentialGmail,fetch_credential_gmail } = require('../controllers/credentialController');
 router.get('/', (req,res)=>{
     res.status(200).json({
         mess:'Hello world API'
@@ -35,6 +36,8 @@ router.get('/logging',fetchLog);
 router.get('/logging/last-w1',fetchLastLogW1);
 router.post('/config',upsertConfig);
 router.get('/config',fetch_config);
+router.post('/credential-gmail',upsertCredentialGmail);
+router.get('/credential-gmail',fetch_credential_gmail);
 // router.get('/user',fetchUser);
 // router.delete('/user/:id',authIsAdmin,deleteUserById);
 // router.put('/user',authIsAdmin,updateUserById);
