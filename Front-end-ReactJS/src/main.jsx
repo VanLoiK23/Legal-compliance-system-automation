@@ -16,6 +16,7 @@ import ComplianceManagement from './pages/admin/ComplianceManagement.jsx';
 import SystemLogViewer from './pages/admin/LoggingManagement.jsx';
 import LawSourceConfig from './pages/admin/ConfigManagement.jsx';
 import EmailCredentialConfig from './pages/admin/CredentialManagement.jsx';
+import EmailTemplateManager from './pages/admin/Template_gmail_W1.jsx';
 
 const router = createBrowserRouter([
   {
@@ -60,11 +61,14 @@ const router = createBrowserRouter([
         path: "loggings",
         element: <SystemLogViewer />
       },{
-        path: "settings",
-        element: <LawSourceConfig />
-      },{
         path: "credential-gmail",
         element: <EmailCredentialConfig />
+      },{
+        path: "email-templates",
+        element: <EmailTemplateManager />
+      },{
+        path: "settings",
+        element: <LawSourceConfig />
       }
     ]
   },

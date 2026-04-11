@@ -20,12 +20,15 @@ const menuItems = [
   { name: "Kiểm tra tuân thủ (W3)", icon: ShieldAlert, path: "compliance" },
   { name: "Cài đặt hệ thống", icon: Settings, path: "settings" },
   { name: "Credential Gmail", icon: Settings, path: "credential-gmail" },
+  { name: "Email Templates", icon: Settings, path: "email-templates" },
   { name: "Logging", icon: Logs, path: "loggings" },
 ];
 
 const MainLayout = ({ children }) => {
   // Giả lập state để biết menu nào đang được chọn (để tô màu)
   const [activePath, setActivePath] = useState("dashboard");
+
+  console.log("Danh sách menu hiện tại:", menuItems);
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
