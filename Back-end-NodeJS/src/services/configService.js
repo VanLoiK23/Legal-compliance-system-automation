@@ -6,7 +6,8 @@ const updateConfig = async (config) => {
 
     const updateData = {
       url_rss: config.url_rss,
-      number_limit: config.number_limit
+      number_limit: config.number_limit,
+      emailReceiveW1: config.emailReceiveW1
     }
 
     const filter = {

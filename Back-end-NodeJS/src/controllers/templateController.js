@@ -27,10 +27,11 @@ const upsertTemplate = async (req,res)=>{
     }
 }
 
-const fetch_template_add_new_rule = async (req,res)=>{
+const fetch_template_follow_template_key = async (req,res)=>{
 
     try{
-        const result =await getTemplate('ingestion_new_rule');
+        const { template_key } = req.params;
+        const result = await getTemplate(template_key);
 
         return res.status(200).json(result);
 
@@ -40,4 +41,4 @@ const fetch_template_add_new_rule = async (req,res)=>{
     }
 }
 
-module.exports = {upsertTemplate,fetch_template_add_new_rule}
+module.exports = {upsertTemplate,fetch_template_follow_template_key}
