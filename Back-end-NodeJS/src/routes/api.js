@@ -7,7 +7,7 @@ const { receiveData ,getData, deleteMetadata} = require('../controllers/metadata
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
 const {checkFiles} = require('../controllers/checkFilesController')
 const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard } = require('../controllers/complianceController');
-const { upsertTemplate,fetch_template_add_new_rule} = require('../controllers/templateController');
+const { upsertTemplate, fetch_template_follow_template_key} = require('../controllers/templateController');
 
 //apply middleware for all
 // router.use([auth]);
@@ -39,9 +39,8 @@ router.post('/config',upsertConfig);
 router.get('/config',fetch_config);
 router.post('/credential-gmail',upsertCredentialGmail);
 router.get('/credential-gmail',fetch_credential_gmail);
-router.post('/template',upsertTemplate);
-router.get('/email-templates/ingestion_new_rule',fetch_template_add_new_rule);
-router.get('/email-templates',upsertTemplate);
+router.get('/email-templates/:template_key',fetch_template_follow_template_key);
+router.post('/email-templates',upsertTemplate);
 // router.get('/user',fetchUser);
 // router.delete('/user/:id',authIsAdmin,deleteUserById);
 // router.put('/user',authIsAdmin,updateUserById);

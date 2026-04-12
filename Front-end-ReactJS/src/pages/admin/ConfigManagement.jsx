@@ -4,6 +4,7 @@ import instance from "../../utils/axios.customize";
 const LawSourceConfig = () => {
   const [urlRss, setUrlRss] = useState("");
   const [numberLimit, setNumberLimit] = useState(0);
+  const [emailWorkflow1, setEmailWorkflow1] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
 
@@ -14,6 +15,7 @@ const LawSourceConfig = () => {
         if (res && res.data) {
           setUrlRss(res.data.url_rss);
           setNumberLimit(res.data.number_limit);
+          setEmailWorkflow1(res.data.emailReceiveW1);
         }
       } catch (err) {
         console.error("Lỗi fetch API:", err);
@@ -31,6 +33,7 @@ const LawSourceConfig = () => {
       await instance.post(`/config`, {
         url_rss: urlRss,
         number_limit: parseInt(numberLimit, 10),
+        emailReceiveW1: emailWorkflow1
       });
 
       setStatusMessage({
@@ -104,6 +107,21 @@ const LawSourceConfig = () => {
                   <div className="form-text mt-2 text-muted">
                     Giới hạn số lượng bài viết lấy về trong mỗi chu kỳ chạy tự động.
                   </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="form-label fw-semibold text-dark mb-2">
+                    Địa chỉ email người nhận cho Workflow 1
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={emailWorkflow1}
+                    onChange={(e) => setEmailWorkflow1(e.target.value)}
+                    className="form-control"
+                    style={{ backgroundColor: '#f8f9fa', borderColor: '#dee2e6', padding: '0.75rem 1rem' }}
+                    placeholder="Ví dụ: user@example.com"
+                  />
                 </div>
 
                 {/* Vùng hiển thị thông báo */}
