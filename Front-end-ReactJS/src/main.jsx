@@ -20,6 +20,7 @@ import EmailCredentialConfig from './pages/admin/CredentialManagement.jsx';
 import EmailTemplateManager from './pages/admin/Template_gmail_W1.jsx';
 import PlainEmailTemplateManager from './pages/admin/Template_High_Severity.jsx';
 import NotificationTemplateManager from './pages/admin/Template_Zalo_Tele_W1.jsx';
+import TelegramCredentialManager from './pages/admin/CredentialTelegramManagement.jsx';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -65,7 +66,12 @@ const router = createBrowserRouter([
       },{
         path: "credential-gmail",
         element: <EmailCredentialConfig />
-      },{
+      },
+      {
+        path: "credential-telegram",
+        element: <TelegramCredentialManager />
+      },
+      {
   path: "notify-templates",
   children: [
     { 
