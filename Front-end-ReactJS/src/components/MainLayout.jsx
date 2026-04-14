@@ -31,7 +31,8 @@ const menuItems = [
     subItems: [
       { name: "Báo cáo luật mới", path: "notify-templates/ingestion_new_rule" },
       { name: "Báo cáo high severity rule", path: "notify-templates/high_severity" },
-      { name: "Báo cáo gửi zalo, tele của W1", path: "notify-templates/summary_report" }
+      { name: "Báo cáo gửi zalo, tele của W1", path: "notify-templates/summary_report" },
+      { name: "Báo cáo tuân thủ hàng tuần", path: "notify-templates/weekly_report" },
     ]
   },
   { name: "Logging", icon: Logs, path: "loggings" },

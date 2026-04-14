@@ -1,6 +1,8 @@
 const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById, fetchRuleByUrl, updateRulesByUrl, getRulesThisWeek, getRulesIsEffect} = require('../services/ruleService');
 const {addLogging,getLogging, getLastLogTypeW1} = require('../services/loggingService');
 const redisClient = require('../utils/redis');
+const Rule = require('../models/rule');
+const moment = require('moment');
 
 const getRuleExist = async (req, res) => {
   try {
@@ -402,4 +404,40 @@ const fetchLastLogW1 = async (req,res)=>{
     }
 }
 
-module.exports = {getRuleExist,getRuleCheckCompliance,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchRuleWeekly,fetchLog,insertLog,fetchLastLogW1}
+const fetchRuleWeeklyForReport = async (req, res) => {
+    try {
+        const sevenDaysAgo = moment().subtract(7, 'days').startOf('day').toDate();
+
+        const today = moment().endOf('day').toDate();
+
+        // 1. Lấy tất cả luật trong 7 ngày qua
+        const weeklyRules = await Rule.find({
+            extracted_at: { $gte: sevenDaysAgo, $lte: today }
+        }).sort({ extracted_at: -1 });
+
+        // 2. Tính toán thống kê theo mức độ rủi ro (Severity)
+        const stats = {
+            total: weeklyRules.length,
+            high: weeklyRules.filter(r => r.severity === 'high').length,
+            medium: weeklyRules.filter(r => r.severity === 'medium').length,
+            low: weeklyRules.filter(r => r.severity === 'low').length,
+            weekRange: `${moment(sevenDaysAgo).format('DD/MM')} - ${moment(today).format('DD/MM/YYYY')}`
+        };
+
+        // 3. Lấy Top 5 luật tiêu biểu nhất (ví dụ các luật High mới nhất)
+        const topRules = weeklyRules.slice(0, 5).map(r => ({
+            rule_id: r.rule_id,
+            title: r.title,
+            severity_icon: r.severity === 'high' ? '🔴' : (r.severity === 'medium' ? '🟠' : '🟢')
+        }));
+
+        res.status(200).json({
+            success: true,
+            data: { stats, topRules }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = {getRuleExist,getRuleCheckCompliance,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchRuleWeekly,fetchLog,insertLog,fetchLastLogW1,fetchRuleWeeklyForReport}
