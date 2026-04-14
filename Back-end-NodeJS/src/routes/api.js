@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // const {register,signin,fetchUser,deleteUserById,updateUserById} = require('../controllers/usersController')
-const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_rule_exist, check_change_and_update, fetchRuleWeekly, fetchLastLogW1, getRuleCheckCompliance} = require('../controllers/ruleController')
+const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_rule_exist, check_change_and_update, fetchRuleWeekly, fetchLastLogW1, getRuleCheckCompliance,fetchRuleWeeklyForReport} = require('../controllers/ruleController')
 const {auth,authIsAdmin,checkIsValidOrigin} = require('../middlewares/auth')
 const { receiveData ,getData, deleteMetadata} = require('../controllers/metadataController');
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
@@ -13,7 +13,7 @@ const { upsertTemplate, fetch_template_follow_template_key} = require('../contro
 // router.use([auth]);
 const upload = require('../middlewares/upload');
 const { upsertConfig, fetch_config } = require('../controllers/configController');
-const { upsertCredentialGmail,fetch_credential_gmail } = require('../controllers/credentialController');
+const { upsertCredentialGmail,fetch_credential_gmail,add_credential_telegram,upsertCredentialTelegram,fetch_credential_telegram,delete_credential_telegram,fetch_credential_telegram_by_key } = require('../controllers/credentialController');
 router.get('/', (req,res)=>{
     res.status(200).json({
         mess:'Hello world API'
@@ -31,6 +31,7 @@ router.put('/rule',updateRule);
 router.post('/rule/check-duplicate',filter_rule_exist);
 router.put('/rule/check-change',check_change_and_update);
 router.get('/rule/weekly',fetchRuleWeekly);
+router.get('/rule/weekly-for-report',fetchRuleWeeklyForReport);
 router.delete('/rule/:rule_id',deleteRule);
 router.post('/logging',insertLog);
 router.get('/logging',fetchLog);
@@ -39,6 +40,11 @@ router.post('/config',upsertConfig);
 router.get('/config',fetch_config);
 router.post('/credential-gmail',upsertCredentialGmail);
 router.get('/credential-gmail',fetch_credential_gmail);
+router.post('/telegram-credentials',add_credential_telegram);
+router.put('/telegram-credentials/:_id',upsertCredentialTelegram);
+router.get('/telegram-credentials',fetch_credential_telegram);
+router.delete('/telegram-credentials/:_id',delete_credential_telegram);
+router.get('/telegram-credentials/key/:key',fetch_credential_telegram_by_key);
 router.get('/email-templates/:template_key',fetch_template_follow_template_key);
 router.post('/email-templates',upsertTemplate);
 // router.get('/user',fetchUser);
