@@ -12,6 +12,7 @@ const saveComplianceResult = async (req, res) => {
             severity: severity || 'LOW',
             aiExplain,
             riskScore: riskScore || 0
+            
         });
 
         await newResult.save();
