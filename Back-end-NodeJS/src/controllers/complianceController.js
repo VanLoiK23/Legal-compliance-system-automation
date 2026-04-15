@@ -71,10 +71,23 @@ const getStats = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const checkDuplicate = async (req, res) => {
+    try {
+        const { hash } = req.params;
+        const existing = await ComplianceResult.findOne({ fileHash: hash });
+        if (existing) {
+            return res.status(200).json({ isDuplicate: true, data: existing });
+        }
+        res.status(200).json({ isDuplicate: false });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 module.exports = { 
     saveComplianceResult, 
     getAllResults, 
     getResultById,
     deleteResult,
-    getStats 
+    getStats,
+    checkDuplicate 
 };
