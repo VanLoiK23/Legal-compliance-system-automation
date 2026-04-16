@@ -223,28 +223,51 @@ const ComplianceManagement = () => {
                 <h5 className="fw-bold"><AlertCircle className="me-2 text-primary"/>Báo cáo thẩm định AI</h5>
                 <button className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
-              <div className="modal-body p-4">
-                {/* BỔ SUNG: Alert hiển thị điểm rủi ro trong Modal */}
-                <div className="alert alert-info border-0 rounded-3 mb-4 py-2 small d-flex justify-content-between align-items-center">
-                   <span><strong>Chỉ số rủi ro hệ thống:</strong> {selectedResult.riskScore || 0}/10</span>
-                   <span className="badge bg-white text-info">{selectedResult.severity}</span>
-                </div>
-                
-                <div className="row g-4">
-                  <div className="col-md-6">
-                    <label className="text-muted small fw-bold">LÝ DO VI PHẠM (AI REASONING)</label>
-                    <div className="p-3 bg-light rounded-3 mt-2" style={{ maxHeight: "300px", overflowY: "auto" }}>
-                      {selectedResult.aiReasoning}
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="text-muted small fw-bold">GIẢI THÍCH CHUYÊN SÂU (AI EXPLAIN)</label>
-                    <div className="p-3 bg-soft-primary rounded-3 mt-2 text-primary" style={{ maxHeight: "300px", overflowY: "auto" }}>
-                      {selectedResult.aiExplain || "Chưa có giải thích chi tiết."}
-                    </div>
-                  </div>
-                </div>
-              </div>
+<div className="modal-body p-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+    {/* 1. Thanh trạng thái tổng quát (Giữ nguyên và thêm Risk Score) */}
+    <div className="alert alert-info border-0 rounded-3 mb-4 py-2 small d-flex justify-content-between align-items-center">
+        <span><strong>Chỉ số rủi ro:</strong> {selectedResult.riskScore}/10</span>
+        <span className="badge bg-white text-info">{selectedResult.severity}</span>
+    </div>
+
+    {/* 2. Báo cáo trực quan (NẾU CÓ - Phần này thầy rất thích) */}
+    {selectedResult.richReport && (
+        <div className="mb-4">
+            <label className="text-muted small fw-bold mb-2 d-block">BÁO CÁO VI PHẠM TRỰC QUAN (HIGHLIGHT)</label>
+            <div 
+                className="p-3 bg-white border rounded-3"
+                style={{ borderLeft: '4px solid #dc3545' }}
+                dangerouslySetInnerHTML={{ __html: selectedResult.richReport }}
+            />
+        </div>
+    )}
+
+    <div className="row g-4">
+        {/* 3. Hai phần cũ của nhóm (Reasoning & Explain) */}
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold">LÝ DO VI PHẠM (AI REASONING)</label>
+            <div className="p-3 bg-light rounded-3 mt-2 small">{selectedResult.aiReasoning}</div>
+        </div>
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold">PHÂN TÍCH CHUYÊN SÂU (AI EXPLAIN)</label>
+            <div className="p-3 bg-soft-primary rounded-3 mt-2 text-primary small">{selectedResult.aiExplain}</div>
+        </div>
+
+        {/* 4. Hai phần MỚI THÊM VÀO (Violating Text & Suggested Fix) */}
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold text-danger">ĐOẠN VĂN VI PHẠM CỤ THỂ</label>
+            <div className="p-3 bg-danger bg-opacity-10 rounded-3 mt-2 text-danger small fw-bold">
+                "{selectedResult.violatingText || "N/A"}"
+            </div>
+        </div>
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold text-success">GỢI Ý SỬA ĐỔI TỪ AI</label>
+            <div className="p-3 bg-success bg-opacity-10 rounded-3 mt-2 text-success small">
+                {selectedResult.suggestedFix || "Chưa có gợi ý sửa đổi."}
+            </div>
+        </div>
+    </div>
+</div>
               <div className="modal-footer border-0 p-4 pt-0">
                 <button className="btn btn-primary w-100 rounded-3 fw-bold" onClick={() => setShowModal(false)}>Đóng</button>
               </div>
