@@ -2,7 +2,7 @@ const ComplianceResult = require('../models/complianceResult');
 const Rule = require('../models/rule');
 const saveComplianceResult = async (req, res) => {
     try {
-        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore} = req.body;
+        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore, timestamp, fileHash } = req.body;
         
         const newResult = new ComplianceResult({
             evidenceName,
@@ -11,17 +11,19 @@ const saveComplianceResult = async (req, res) => {
             aiReasoning,
             severity: severity || 'LOW',
             aiExplain,
-            riskScore: riskScore || 0
+            riskScore: riskScore || 0,
+            timestamp: new Date(),
+            fileHash: req.file.filename
         });
 
         await newResult.save();
 
-        if (complianceRes === 'Vi phạm') {
-            await Rule.findOneAndUpdate(
-                { rule_id: matchedRuleId }, 
-                { $inc: { violationCount: 1 } } // $inc là lệnh tăng giá trị trong MongoDB
-            );
-        }
+        // if (complianceRes === 'Vi phạm') {
+        //     await Rule.findOneAndUpdate(
+        //         { rule_id: matchedRuleId }, 
+        //         { $inc: { violationCount: 1 } } // $inc là lệnh tăng giá trị trong MongoDB
+        //     );
+        // }
 
         res.status(201).json({ message: "✅ Lưu kết quả tuân thủ thành công!", data: newResult });
     } catch (error) {
@@ -71,10 +73,24 @@ const getStats = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+const checkDuplicate = async (req, res) => {
+    try {
+        const { hash } = req.params;
+        const existing = await ComplianceResult.findOne({ fileHash: hash });
+        if (existing) {
+            return res.status(200).json({ isDuplicate: true, data: existing });
+        }
+        res.status(200).json({ isDuplicate: false });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 module.exports = { 
     saveComplianceResult, 
     getAllResults, 
     getResultById,
     deleteResult,
-    getStats 
+    getStats,
+    checkDuplicate 
 };

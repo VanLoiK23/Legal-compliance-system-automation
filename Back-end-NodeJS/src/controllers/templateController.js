@@ -1,7 +1,7 @@
-const { updateConfig, getConfig } = require("../services/configService");
+const { updateTemplate, getTemplate } = require("../services/templateService");
 
 
-const upsertConfig = async (req,res)=>{
+const upsertTemplate = async (req,res)=>{
 
     try{
         const data = req.body;
@@ -9,7 +9,7 @@ const upsertConfig = async (req,res)=>{
         console.log(data)
 
 
-        let result =await updateConfig(data);
+        let result =await updateTemplate(data);
 
         console.log(result)
 
@@ -27,10 +27,11 @@ const upsertConfig = async (req,res)=>{
     }
 }
 
-const fetch_config = async (req,res)=>{
+const fetch_template_follow_template_key = async (req,res)=>{
 
     try{
-        const result =await getConfig();
+        const { template_key } = req.params;
+        const result = await getTemplate(template_key);
 
         return res.status(200).json(result);
 
@@ -40,4 +41,4 @@ const fetch_config = async (req,res)=>{
     }
 }
 
-module.exports = {upsertConfig,fetch_config}
+module.exports = {upsertTemplate,fetch_template_follow_template_key}

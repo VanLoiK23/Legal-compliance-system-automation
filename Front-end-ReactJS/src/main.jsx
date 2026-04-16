@@ -5,6 +5,7 @@ import App from './App.jsx'
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate
 } from "react-router-dom";
 import LoginForm from './pages/login.jsx';
 import { AuthWrapper } from './components/context/auth.context.jsx';
@@ -13,7 +14,14 @@ import RuleManagement from './pages/admin/rule_management.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import DocumentManagement from './pages/admin/DocumentManagement.jsx'; 
 import ComplianceManagement from './pages/admin/ComplianceManagement.jsx';
-  
+import SystemLogViewer from './pages/admin/LoggingManagement.jsx';
+import LawSourceConfig from './pages/admin/ConfigManagement.jsx';
+import EmailCredentialConfig from './pages/admin/CredentialManagement.jsx';
+import EmailTemplateManager from './pages/admin/Template_gmail_W1.jsx';
+import PlainEmailTemplateManager from './pages/admin/Template_High_Severity.jsx';
+import NotificationTemplateManager from './pages/admin/Template_Zalo_Tele_W1.jsx';
+import TelegramCredentialManager from './pages/admin/CredentialTelegramManagement.jsx';
+import WeeklyTemplateManager from './pages/admin/Template_Tele_Weekly_Report.jsx';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -53,6 +61,44 @@ const router = createBrowserRouter([
       },{
         path: "compliance",
         element: <ComplianceManagement />
+      },{
+        path: "loggings",
+        element: <SystemLogViewer />
+      },{
+        path: "credential-gmail",
+        element: <EmailCredentialConfig />
+      },
+      {
+        path: "credential-telegram",
+        element: <TelegramCredentialManager />
+      },
+      {
+  path: "notify-templates",
+  children: [
+    { 
+      index: true, 
+      element: <Navigate to="ingestion_new_rule" replace /> 
+    },
+    { 
+      path: "ingestion_new_rule", 
+      element: <EmailTemplateManager /> 
+    },
+    { 
+      path: "high_severity", 
+      element: <PlainEmailTemplateManager /> 
+    },
+    { 
+      path: "summary_report", 
+      element: <NotificationTemplateManager /> 
+    },
+    {
+      path: "weekly_report",
+      element: <WeeklyTemplateManager />
+    }
+  ]
+},{
+        path: "settings",
+        element: <LawSourceConfig />
       }
     ]
   },
@@ -77,4 +123,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
      </AuthWrapper>
   </React.StrictMode>,
 )
-

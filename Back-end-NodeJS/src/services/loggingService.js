@@ -9,7 +9,7 @@ const addLogging = async (message,type) => {
 
     let result = await Logging.create({
       message: message,
-      timestamp: vnTime,
+      timestamp: now,
       type: type
     });
     return result;

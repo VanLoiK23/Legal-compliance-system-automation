@@ -1,15 +1,87 @@
-import React from 'react';
-import { ShieldAlert, FileText, Scale, Activity } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const data = [
-  { name: 'Tuần 1', violations: 4 },
-  { name: 'Tuần 2', violations: 10 },
-  { name: 'Tuần 3', violations: 7 },
-  { name: 'Tuần 4', violations: 15 },
-];
+import React, { useEffect, useState } from "react";
+import {
+  ShieldAlert,
+  FileCheck,
+  Scale,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
+} from "recharts";
+import instance from "../../utils/axios.customize";
 
 const Dashboard = () => {
+  // 1. Khai báo đầy đủ các State
+  const [trendData, setTrendData] = useState([]);
+  const [severityData, setSeverityData] = useState([]);
+  const [ruleCount, setRuleCount] = useState(0);
+  const [violateHighCount, setViolateHighCount] = useState(0);
+  const [documentPending, setDocumentPending] = useState(0);
+  const [percentPass, setPercentPass] = useState(0);
+  const [isLoading, setIsLoading] = useState(true); // Thêm biến loading
+
+  // 2. Fetch dữ liệu Nguồn luật (Rules) và phân bổ Severity
+  useEffect(() => {
+    const fetchRules = async () => {
+      try {
+        const res = await instance.get("/ruleActive");
+        if (res && res.data) {
+          const data = res.data;
+          setRuleCount(data.length);
+
+          // Tính toán số lượng theo từng mức độ nghiêm trọng
+          const high = data.filter((r) => r.severity?.toLowerCase() === 'high').length;
+          const med = data.filter((r) => r.severity?.toLowerCase() === 'medium').length;
+          const low = data.length - (high + med);
+
+          // Cập nhật mảng dữ liệu cho BarChart (Phải là một mảng [])
+          setSeverityData([
+            { name: "Cao (High)", count: high, color: "#dc3545" },
+            { name: "Trung bình", count: med, color: "#ffc107" },
+            { name: "Thấp", count: low, color: "#0dcaf0" },
+          ]);
+        }
+      } catch (err) {
+        console.error("Lỗi fetch Rules:", err);
+      }
+    };
+    fetchRules();
+  }, []);
+
+  // 3. Fetch dữ liệu thống kê kết quả tuân thủ (Stats)
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      const res = await instance.get("/compliance-fetch");
+
+      if (res && res.data) {
+        // Áp dụng dữ liệu từ Controller trả về
+        setTrendData(res.data.trendData || []);
+        setViolateHighCount(res.data.violateHighCount || 0);
+        setDocumentPending(res.data.documentPending || 0);
+        setPercentPass(res.data.percentPass || 0);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu dashboard:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
   return (
     <div className="container-fluid py-4" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       <h2 className="mb-4 fw-bold text-dark">Hệ thống Giám sát Tuân thủ</h2>
