@@ -22,6 +22,7 @@ import PlainEmailTemplateManager from './pages/admin/Template_High_Severity.jsx'
 import NotificationTemplateManager from './pages/admin/Template_Zalo_Tele_W1.jsx';
 import TelegramCredentialManager from './pages/admin/CredentialTelegramManagement.jsx';
 import WeeklyTemplateManager from './pages/admin/Template_Tele_Weekly_Report.jsx';
+import AISystemSettings from './pages/admin/toggle_management.jsx';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -64,6 +65,9 @@ const router = createBrowserRouter([
       },{
         path: "loggings",
         element: <SystemLogViewer />
+      },{
+        path: "toggle-management",
+        element: <AISystemSettings />
       },{
         path: "credential-gmail",
         element: <EmailCredentialConfig />
