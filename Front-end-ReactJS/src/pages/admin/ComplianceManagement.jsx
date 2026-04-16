@@ -49,7 +49,6 @@ const ComplianceManagement = () => {
     if (!Array.isArray(results)) return [];
     
     return results.filter((item) => {
-      // Dùng (item.truong_du_lieu || "") để không bao giờ bị lỗi toLowerCase
       const name = item.evidenceName || "";
       const ruleId = item.matchedRuleId || "";
 
@@ -82,6 +81,13 @@ const ComplianceManagement = () => {
         setActiveMenuId(null);
       }
     }
+  };
+
+  // --- BỔ SUNG: Hàm xác định màu sắc cho Risk Score ---
+  const getScoreColor = (score) => {
+    if (score >= 8) return "text-danger fw-bold"; // Đỏ nếu rủi ro cao
+    if (score >= 5) return "text-warning fw-bold"; // Vàng nếu rủi ro trung bình
+    return "text-success fw-bold"; // Xanh nếu rủi ro thấp
   };
 
   const getSeverityBadge = (sev) => {
@@ -133,6 +139,8 @@ const ComplianceManagement = () => {
                 <th className="ps-4 py-3">Hồ sơ</th>
                 <th>Mã Luật</th>
                 <th>Kết quả</th>
+                {/* BỔ SUNG: Header Cột Điểm rủi ro */}
+                <th>Điểm rủi ro</th>
                 <th>Mức độ</th>
                 <th>Thời gian</th>
                 <th className="text-end pe-4">Thao tác</th>
@@ -149,6 +157,10 @@ const ComplianceManagement = () => {
                         {item.complianceRes === 'Vi phạm' ? <ShieldAlert size={14} className="me-1"/> : <CheckCircle2 size={14} className="me-1"/>}
                         {item.complianceRes}
                       </span>
+                    </td>
+                    {/* BỔ SUNG: Hiển thị Điểm rủi ro */}
+                    <td className={getScoreColor(item.riskScore)}>
+                      {item.riskScore || 0}/10
                     </td>
                     <td>{getSeverityBadge(item.severity)}</td>
                     <td className="text-muted small">{new Date(item.timestamp).toLocaleString('vi-VN')}</td>
@@ -171,7 +183,7 @@ const ComplianceManagement = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center py-4 text-muted">Không tìm thấy dữ liệu phù hợp</td>
+                  <td colSpan="7" className="text-center py-4 text-muted">Không tìm thấy dữ liệu phù hợp</td>
                 </tr>
               )}
             </tbody>
@@ -179,7 +191,7 @@ const ComplianceManagement = () => {
         </div>
       </div>
 
-      {/* ĐÃ BỔ SUNG: Thanh Phân Trang (Pagination) */}
+      {/* Thanh Phân Trang */}
       {totalPages > 1 && (
         <div className="d-flex justify-content-between align-items-center mt-2 px-2">
           <span className="text-muted small">Trang {currentPage} / {totalPages}</span>
@@ -207,11 +219,17 @@ const ComplianceManagement = () => {
         <div className="modal show d-block" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 2000 }}>
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content border-0 rounded-4 shadow-lg">
-              <div className="modal-header border-0 pt-4 px-4">
-                <h5 className="fw-bold"><AlertCircle className="me-2 text-primary"/>Phân tích chi tiết từ AI</h5>
+              <div className="modal-header border-0 pt-4 px-4 d-flex justify-content-between">
+                <h5 className="fw-bold"><AlertCircle className="me-2 text-primary"/>Báo cáo thẩm định AI</h5>
                 <button className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body p-4">
+                {/* BỔ SUNG: Alert hiển thị điểm rủi ro trong Modal */}
+                <div className="alert alert-info border-0 rounded-3 mb-4 py-2 small d-flex justify-content-between align-items-center">
+                   <span><strong>Chỉ số rủi ro hệ thống:</strong> {selectedResult.riskScore || 0}/10</span>
+                   <span className="badge bg-white text-info">{selectedResult.severity}</span>
+                </div>
+                
                 <div className="row g-4">
                   <div className="col-md-6">
                     <label className="text-muted small fw-bold">LÝ DO VI PHẠM (AI REASONING)</label>
