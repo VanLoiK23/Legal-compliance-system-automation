@@ -1,4 +1,4 @@
-const { updateConfig, getConfig } = require("../services/configService");
+const { updateConfig, getConfig,updateToggle } = require("../services/configService");
 
 
 const upsertConfig = async (req,res)=>{
@@ -27,6 +27,33 @@ const upsertConfig = async (req,res)=>{
     }
 }
 
+const upsertToggle = async (req,res)=>{
+
+    try{
+        const data = req.body;
+
+        console.log(data)
+
+
+        let result =await updateToggle(data);
+
+        console.log(result)
+
+        return res.status(200).json(
+            {
+                message: 'success'
+            }
+        );
+
+    }catch(err){
+        console.log(err)
+
+        return res.sendStatus(500);
+
+    }
+}
+
+
 const fetch_config = async (req,res)=>{
 
     try{
@@ -40,4 +67,4 @@ const fetch_config = async (req,res)=>{
     }
 }
 
-module.exports = {upsertConfig,fetch_config}
+module.exports = {upsertConfig,fetch_config,upsertToggle}
