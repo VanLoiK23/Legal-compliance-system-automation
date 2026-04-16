@@ -10,6 +10,7 @@ const ruleSchema = new mongoose.Schema({
     source_url: String,
     status: String,
     source_pubDate: Date,
+    reliability:String,
     extracted_at: Date,
 });
 

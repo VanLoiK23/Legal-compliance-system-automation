@@ -18,8 +18,9 @@ const addNewRule = async (rule) => {
       severity: rule.severity,
       source_url: rule.source.url,
       source_pubDate: dateObject,
+      reliability: (rule.type_source===1)?'highest':'high',
       extracted_at: now,
-      status: 'Active'
+      status: 'Active',
     });
     return result;
   } catch (error) {

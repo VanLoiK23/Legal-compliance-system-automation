@@ -12,7 +12,7 @@ const { upsertTemplate, fetch_template_follow_template_key} = require('../contro
 //apply middleware for all
 // router.use([auth]);
 const upload = require('../middlewares/upload');
-const { upsertConfig, fetch_config } = require('../controllers/configController');
+const { upsertConfig, fetch_config,upsertToggle } = require('../controllers/configController');
 const { upsertCredentialGmail,fetch_credential_gmail,add_credential_telegram,upsertCredentialTelegram,fetch_credential_telegram,delete_credential_telegram,fetch_credential_telegram_by_key } = require('../controllers/credentialController');
 router.get('/', (req,res)=>{
     res.status(200).json({
@@ -38,6 +38,8 @@ router.get('/logging',fetchLog);
 router.get('/logging/last-w1',fetchLastLogW1);
 router.post('/config',upsertConfig);
 router.get('/config',fetch_config);
+router.post('/toggle',upsertToggle);
+router.get('/toggle',fetch_config);
 router.post('/credential-gmail',upsertCredentialGmail);
 router.get('/credential-gmail',fetch_credential_gmail);
 router.post('/telegram-credentials',add_credential_telegram);
