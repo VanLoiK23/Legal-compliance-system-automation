@@ -38,7 +38,7 @@ router.get('/logging',fetchLog);
 router.get('/logging/last-w1',fetchLastLogW1);
 router.post('/config',upsertConfig);
 router.get('/config',fetch_config);
-//router.post('/toggle',upsertToggle);
+router.post('/toggle',upsertToggle);
 router.get('/toggle',fetch_config);
 router.post('/credential-gmail',upsertCredentialGmail);
 router.get('/credential-gmail',fetch_credential_gmail);
