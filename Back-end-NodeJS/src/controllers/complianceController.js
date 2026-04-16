@@ -2,7 +2,7 @@ const ComplianceResult = require('../models/complianceResult');
 
 const saveComplianceResult = async (req, res) => {
     try {
-        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore, timestamp } = req.body;
+        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore, timestamp, fileHash } = req.body;
         
         const newResult = new ComplianceResult({
             evidenceName,
@@ -12,7 +12,8 @@ const saveComplianceResult = async (req, res) => {
             severity: severity || 'LOW',
             aiExplain,
             riskScore: { type: Number, default: 0 },
-            timestamp: new Date()
+            timestamp: new Date(),
+            fileHash: req.file.filename
         });
 
         await newResult.save();
@@ -127,12 +128,20 @@ const fetchDataForDashboard = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
+const checkDuplicate = async (req, res) => {
+    try {
+        const existing = await ComplianceResult.findOne({ fileHash: req.params.hash });
+        res.status(200).json({ isDuplicate: !!existing, data: existing });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 module.exports = { 
     saveComplianceResult, 
     getAllResults, 
     getResultById,
     deleteResult,
     getStats,
-    fetchDataForDashboard 
+    fetchDataForDashboard,
+    checkDuplicate 
 };

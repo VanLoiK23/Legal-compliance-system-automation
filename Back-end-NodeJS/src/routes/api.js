@@ -6,7 +6,7 @@ const {auth,authIsAdmin,checkIsValidOrigin} = require('../middlewares/auth')
 const { receiveData ,getData, deleteMetadata} = require('../controllers/metadataController');
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
 const {checkFiles} = require('../controllers/checkFilesController')
-const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard } = require('../controllers/complianceController');
+const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard, checkDuplicate } = require('../controllers/complianceController');
 const { upsertTemplate, fetch_template_follow_template_key} = require('../controllers/templateController');
 
 //apply middleware for all
@@ -19,7 +19,7 @@ router.get('/', (req,res)=>{
         mess:'Hello world API'
     })
 }); 
-
+const {getDataw2,saveWeeklyW2Data} = require('../controllers/weeklyw2Controller');
 //apply middleware for all routes
 router.use(checkIsValidOrigin);
 
@@ -62,6 +62,8 @@ router.delete('/receive/:id', deleteMetadata);
 router.post('/uploadData',upload.single('file'),ProcessUploadData)
 //checkfile exist - hashfile api
 router.post('/checkFiles', checkFiles);
+router.get('/weekly-w2', getDataw2);
+router.post('/weekly-w2-save', saveWeeklyW2Data);
 
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
@@ -70,7 +72,6 @@ router.get('/compliance-results/:id', getResultById);     // Endpoint 3 (Mới)
 router.delete('/compliance-results/:id', deleteResult); // MỚI
 router.get('/compliance-stats', getStats); // MỚI
 router.get('/compliance-fetch', fetchDataForDashboard);
-// Route này để n8n gọi tới
-router.post('/compliance-results', saveComplianceResult);
+router.get('/check-duplicate/:hash', checkDuplicate);
 
 module.exports = router;

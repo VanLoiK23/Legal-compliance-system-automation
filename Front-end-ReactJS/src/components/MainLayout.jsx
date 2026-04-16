@@ -20,8 +20,10 @@ const menuItems = [
   { name: "Tổng quan", icon: LayoutDashboard, path: "dashboard" },
   { name: "Quản lý Rules (W1)", icon: Scale, path: "rules" },
   { name: "Hồ sơ tài liệu (W2)", icon: FileText, path: "documents" },
+ { name: "Weekly report log (W2)", icon: FileText, path: "weekly-report-w2" },
   { name: "Kiểm tra tuân thủ (W3)", icon: ShieldAlert, path: "compliance" },
   { name: "Cài đặt hệ thống", icon: Settings, path: "settings" },
+  { name: "Toggle Management", icon: Settings, path: "toggle-management" },
   { name: "Credential Gmail", icon: Settings, path: "credential-gmail" },
   { name: "Credential Telegram", icon: Settings, path: "credential-telegram" },
   { 
