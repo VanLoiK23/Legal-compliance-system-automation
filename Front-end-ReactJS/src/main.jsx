@@ -13,6 +13,8 @@ import Dashboard from './pages/admin/dashboard.jsx';
 import RuleManagement from './pages/admin/rule_management.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import DocumentManagement from './pages/admin/DocumentManagement.jsx'; 
+import WeeklyReportW2 from './pages/admin/weekly-reportw2.jsx'; 
+
 import ComplianceManagement from './pages/admin/ComplianceManagement.jsx';
 import SystemLogViewer from './pages/admin/LoggingManagement.jsx';
 import LawSourceConfig from './pages/admin/ConfigManagement.jsx';
@@ -58,7 +60,12 @@ const router = createBrowserRouter([
       },{
         path: "documents",
         element: <DocumentManagement />
-      },{
+      },
+      {
+      path: "weekly-report-w2",
+      element: <WeeklyReportW2 />
+      },
+      {
         path: "compliance",
         element: <ComplianceManagement />
       },{
