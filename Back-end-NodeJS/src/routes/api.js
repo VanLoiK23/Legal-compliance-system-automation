@@ -19,7 +19,7 @@ router.get('/', (req,res)=>{
         mess:'Hello world API'
     })
 }); 
-const {getDataw2} = require('../controllers/weeklyw2Controller');
+const {getDataw2,saveWeeklyW2Data} = require('../controllers/weeklyw2Controller');
 //apply middleware for all routes
 router.use(checkIsValidOrigin);
 
@@ -63,7 +63,7 @@ router.post('/uploadData',upload.single('file'),ProcessUploadData)
 //checkfile exist - hashfile api
 router.post('/checkFiles', checkFiles);
 router.get('/weekly-w2', getDataw2);
-
+router.post('/weekly-w2-save', saveWeeklyW2Data);
 
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)

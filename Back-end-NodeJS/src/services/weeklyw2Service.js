@@ -1,4 +1,5 @@
 const MetaData = require("../models/metaData");
+const WeeklyW2Report = require("../models/WeeklyW2ReportSchema");
 
 const getDataService = async () => {
   try {
@@ -44,5 +45,12 @@ const getDataService = async () => {
     throw err;
   }
 };
+const saveWeeklyW2Report = async (data) => {
+  
+  return await WeeklyW2Report.create({
+    ...data,
+    createdAt: new Date()
+  });
+};
 
-module.exports = { getDataService };
+module.exports = { getDataService,saveWeeklyW2Report };
