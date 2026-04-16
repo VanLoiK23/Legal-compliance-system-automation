@@ -19,7 +19,7 @@ router.get('/', (req,res)=>{
         mess:'Hello world API'
     })
 }); 
-
+const {getDataw2} = require('../controllers/weeklyw2Controller');
 //apply middleware for all routes
 router.use(checkIsValidOrigin);
 
@@ -38,7 +38,7 @@ router.get('/logging',fetchLog);
 router.get('/logging/last-w1',fetchLastLogW1);
 router.post('/config',upsertConfig);
 router.get('/config',fetch_config);
-router.post('/toggle',upsertToggle);
+//router.post('/toggle',upsertToggle);
 router.get('/toggle',fetch_config);
 router.post('/credential-gmail',upsertCredentialGmail);
 router.get('/credential-gmail',fetch_credential_gmail);
@@ -62,6 +62,8 @@ router.delete('/receive/:id', deleteMetadata);
 router.post('/uploadData',upload.single('file'),ProcessUploadData)
 //checkfile exist - hashfile api
 router.post('/checkFiles', checkFiles);
+router.get('/weekly-w2', getDataw2);
+
 
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
