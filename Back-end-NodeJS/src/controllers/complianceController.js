@@ -150,5 +150,6 @@ module.exports = {
     deleteResult,
     getStats,
     fetchDataForDashboard,
-    checkDuplicate 
+    checkDuplicate,
+    updateStatus 
 };
