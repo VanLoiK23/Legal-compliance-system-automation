@@ -136,11 +136,23 @@ const checkDuplicate = async (req, res) => {
 const updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { action } = req.query; // 'Approved' hoặc 'Rejected'
-        const result = await ComplianceResult.findByIdAndUpdate(id, { status: action }, { new: true });
-        res.send(`<h1>Hồ sơ đã được xử lý: ${action}</h1><p>Bạn có thể đóng cửa sổ này.</p>`);
+        const { action } = req.query; // Approved hoặc Rejected
+
+        // Tìm và cập nhật trạng thái
+        const result = await ComplianceResult.findByIdAndUpdate(
+            id, 
+            { status: action }, 
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).send("<h1>Lỗi: Không tìm thấy hồ sơ!</h1>");
+        }
+
+        res.send(`<h1>Xử lý thành công!</h1><p>Hồ sơ đã được chuyển sang trạng thái: <b>${action}</b></p>`);
     } catch (error) {
-        res.status(500).send("Lỗi xử lý phê duyệt");
+        console.error(error);
+        res.status(500).send("Lỗi server khi phê duyệt");
     }
 };
 module.exports = { 
