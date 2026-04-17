@@ -13,7 +13,7 @@ const complianceResultSchema = new mongoose.Schema({
  
  
     fileHash: { type: String, unique: true },
-    violatingText: { type: String },
+    violatingText: {Stype: String },
     suggestedFix: { type: String },
     richReport: { type: String }
  
