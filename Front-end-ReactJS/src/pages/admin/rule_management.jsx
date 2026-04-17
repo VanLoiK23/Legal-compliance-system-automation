@@ -4,6 +4,8 @@ import {
   Filter,
   MoreVertical,
   Plus,
+  ShieldCheck,
+  Lock,
   Eye,
   Edit3,
   X,
@@ -33,6 +35,13 @@ const RuleManagement = () => {
   const [modalMode, setModalMode] = useState(null); // 'view' | 'edit'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const providerMap = {
+  "1": "Công báo Chính Phủ",
+  "2": "Bộ Tư Pháp",
+  "3": "Hệ thống văn bản Chính Phủ"
+};
+
 
   useEffect(() => {
     const fetchRules = async () => {
@@ -579,6 +588,28 @@ const RuleManagement = () => {
                           <option value="low">Low</option>
                         </select>
                       </div>
+                      {/* Trường Cơ quan ban hành - Tự động dựa trên reliability */}
+<div className="mb-3">
+  <label className="form-label text-muted small fw-bold d-flex align-items-center gap-2">
+    <ShieldCheck size={14} className="text-primary" /> CƠ QUAN TRÍCH XUẤT (Hệ thống)
+  </label>
+  <div className="input-group">
+    <input
+      type="text"
+      className="form-control bg-light border-0 rounded-3 fw-bold text-primary"
+      style={{ fontSize: '0.85rem' }}
+      readOnly={true} // Khóa hoàn toàn không cho sửa
+      value={providerMap[String(selectedRule.source_provider)] || "Nguồn tin cậy khác"}
+
+    />
+    <span className="input-group-text bg-light border-0">
+      <Lock size={12} className="text-muted" />
+    </span>
+  </div>
+  <small className="text-muted" style={{ fontSize: '0.7rem' }}>
+    * Trường này được xác định tự động dựa trên độ tin cậy của nguồn.
+  </small>
+</div>
                       <div className="mb-0">
                         <label className="form-label text-muted small fw-bold d-flex align-items-center gap-2">
                           <Globe size={14} /> NGUỒN URL DỮ LIỆU

@@ -2,7 +2,7 @@ const ComplianceResult = require('../models/complianceResult');
 
 const saveComplianceResult = async (req, res) => {
     try {
-        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore, timestamp, fileHash } = req.body;
+        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore, timestamp, fileHash, violatingText, suggestedFix, richReport } = req.body;
         
         const newResult = new ComplianceResult({
             evidenceName,
@@ -13,17 +13,14 @@ const saveComplianceResult = async (req, res) => {
             aiExplain,
             riskScore: { type: Number, default: 0 },
             timestamp: new Date(),
-            fileHash: req.file.filename
+            fileHash: req.file.filename,
+            violatingText,   
+            suggestedFix,    
+            richReport
         });
 
         await newResult.save();
 
-        // if (complianceRes === 'Vi phạm') {
-        //     await Rule.findOneAndUpdate(
-        //         { rule_id: matchedRuleId }, 
-        //         { $inc: { violationCount: 1 } } // $inc là lệnh tăng giá trị trong MongoDB
-        //     );
-        // }
 
         res.status(201).json({ message: "✅ Lưu kết quả tuân thủ thành công!", data: newResult });
     } catch (error) {

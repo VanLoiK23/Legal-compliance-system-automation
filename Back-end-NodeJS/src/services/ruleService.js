@@ -18,9 +18,43 @@ const addNewRule = async (rule) => {
       severity: rule.severity,
       source_url: rule.source.url,
       source_pubDate: dateObject,
-      reliability: (rule.type_source===1)?'highest':'high',
+      reliability: (rule.type_source===1||rule.type_source===3)?'highest':'high',
+      source_provider: rule.type_source,
       extracted_at: now,
       status: 'Active',
+    });
+    return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const addNewRuleNeedValidation = async (rule) => {
+  try {
+
+    const now = new Date();
+    const vnTime = now.toLocaleString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
+    const dateObject = moment(rule.source.pubDate, "DD/MM/YYYY").toDate();
+
+    let result = await Rule.create({
+      rule_id: rule.rule_id,
+      title: rule.title,
+      description: rule.description,
+      conditions: rule.conditions,
+      actions_required: rule.actions_required,
+      severity: rule.severity,
+      is_validated: false,
+      ai_check_result: {
+        issues: rule.issues || "Chưa có lý do từ AI",
+        suggestion: rule.suggestion || "Chưa có đề xuất từ AI",
+      },
+      source_url: rule.source.url,
+      source_pubDate: dateObject,
+      reliability: (rule.type_source===1||rule.type_source===3)?'highest':'high',
+      source_provider: rule.type_source,
+      extracted_at: now,
+      status: 'Pending',
     });
     return result;
   } catch (error) {
@@ -52,6 +86,45 @@ const getRulesIsEffect = async () => {
     return rules;
   } catch (err) {
     console.log(err);
+    return null;
+  }
+};
+
+const getRulesNeedValidation = async () => {
+  try {
+    //get All rule for check compliance 
+    const rules = await Rule.find({status:'Pending'});
+
+
+    return rules;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+const confirmRule = async (rule) => {
+  try { 
+    const filter = { rule_id: rule.rule_id };
+
+    const updateData = {
+      status: 'Active',
+      is_validated: true,
+    };
+
+    let result = await Rule.findOneAndUpdate(
+      filter, 
+      updateData, 
+      {
+        new: true,      // return after update
+        upsert: true,   // if rule_id not exist make new
+        runValidators: true // Make sure data standard Schema
+      }
+    );
+
+    return result;
+  } catch (error) {
+    console.error("Lỗi cập nhật Rule:", error);
     return null;
   }
 };
@@ -193,5 +266,8 @@ module.exports = {
   updateRulesByUrl,
   getRulesThisWeek,
   updateExistRule,
-  deleteRuleById
+  deleteRuleById,
+  addNewRuleNeedValidation,
+  getRulesNeedValidation,
+  confirmRule
 };

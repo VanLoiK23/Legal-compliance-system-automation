@@ -13,6 +13,8 @@ import Dashboard from './pages/admin/dashboard.jsx';
 import RuleManagement from './pages/admin/rule_management.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import DocumentManagement from './pages/admin/DocumentManagement.jsx'; 
+import WeeklyReportW2 from './pages/admin/weekly-reportw2.jsx'; 
+
 import ComplianceManagement from './pages/admin/ComplianceManagement.jsx';
 import SystemLogViewer from './pages/admin/LoggingManagement.jsx';
 import LawSourceConfig from './pages/admin/ConfigManagement.jsx';
@@ -22,6 +24,7 @@ import PlainEmailTemplateManager from './pages/admin/Template_High_Severity.jsx'
 import NotificationTemplateManager from './pages/admin/Template_Zalo_Tele_W1.jsx';
 import TelegramCredentialManager from './pages/admin/CredentialTelegramManagement.jsx';
 import WeeklyTemplateManager from './pages/admin/Template_Tele_Weekly_Report.jsx';
+import AISystemSettings from './pages/admin/toggle_management.jsx';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -58,12 +61,20 @@ const router = createBrowserRouter([
       },{
         path: "documents",
         element: <DocumentManagement />
-      },{
+      },
+      {
+      path: "weekly-report-w2",
+      element: <WeeklyReportW2 />
+      },
+      {
         path: "compliance",
         element: <ComplianceManagement />
       },{
         path: "loggings",
         element: <SystemLogViewer />
+      },{
+        path: "toggle-management",
+        element: <AISystemSettings />
       },{
         path: "credential-gmail",
         element: <EmailCredentialConfig />
