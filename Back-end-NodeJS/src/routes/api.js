@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // const {register,signin,fetchUser,deleteUserById,updateUserById} = require('../controllers/usersController')
-const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_rule_exist, check_change_and_update, fetchRuleWeekly, fetchLastLogW1, getRuleCheckCompliance,fetchRuleWeeklyForReport} = require('../controllers/ruleController')
+const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_rule_exist, check_change_and_update, fetchRuleWeekly, fetchLastLogW1, getRuleCheckCompliance,fetchRuleWeeklyForReport,addRulePending,getRulePending,updateRulePending} = require('../controllers/ruleController')
 const {auth,authIsAdmin,checkIsValidOrigin} = require('../middlewares/auth')
 const { receiveData ,getData, deleteMetadata} = require('../controllers/metadataController');
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
@@ -30,6 +30,9 @@ router.get('/ruleActive',getRuleCheckCompliance);
 router.put('/rule',updateRule);
 router.post('/rule/check-duplicate',filter_rule_exist);
 router.put('/rule/check-change',check_change_and_update);
+router.get('/rule/pending',getRulePending);
+router.post('/rule/pending',addRulePending);
+router.put('/rule/pending',updateRulePending);
 router.get('/rule/weekly',fetchRuleWeekly);
 router.get('/rule/weekly-for-report',fetchRuleWeeklyForReport);
 router.delete('/rule/:rule_id',deleteRule);
