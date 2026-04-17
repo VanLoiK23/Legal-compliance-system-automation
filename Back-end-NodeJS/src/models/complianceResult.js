@@ -7,8 +7,13 @@ const complianceResultSchema = new mongoose.Schema({
     severity: { type: String, enum: ['LOW', 'MEDIUM', 'HIGH'], default: 'LOW' }, // MỚI
     aiReasoning: { type: String },                  // Tương ứng AI_Reasoning
     aiExplain: { type: String },
-    auditorAction: { type: String, default: 'Pending' }, // Tương ứng Auditor_Action
-    timestamp: { type: Date, default: Date.now }    // Tương ứng Timestamp
+    riskScore: { type: Number, min: 0, max: 10, default: 0 }, // Tương ứng riskScore
+    timestamp: { type: Date, default: Date.now },
+    fileHash: { type: String, unique: true },
+    violatingText: {Stype: String },
+    suggestedFix: { type: String },
+    richReport: { type: String },
+    status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' }
 });
 
 module.exports = mongoose.model('ComplianceResult', complianceResultSchema);

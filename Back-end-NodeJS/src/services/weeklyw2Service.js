@@ -1,0 +1,99 @@
+const MetaData = require("../models/metaData");
+const WeeklyW2Report = require("../models/WeeklyW2ReportSchema");
+
+const getDataService = async () => {
+  try {
+   
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  
+    const query = {
+      createdAt: { $gte: oneWeekAgo }
+    };
+
+  
+    const total = await MetaData.countDocuments(query);
+
+
+    const fail_docs = await MetaData.countDocuments({
+      ...query,
+      status: { $in: ["false", false] }
+    });
+
+ 
+    const fail_rate = total === 0 ? 0 : (fail_docs / total) * 100;
+
+    //  trạng thái
+    let status = 0; // 0 = NORMAL, 1 = WARNING, 2 = CRITICAL
+
+    if (fail_rate > 40) {
+      status = 2;
+    } else if (fail_rate >= 20) {
+      status = 1;
+    }
+
+    return {
+      total_docs: total,
+      fail_docs,
+      fail_rate,
+      status
+    };
+
+  } catch (err) {
+    console.error("getDataService error:", err);
+    throw err;
+  }
+};
+const getTotalWeeklyLogs = async (query = {}) => {
+  try {
+    const filter = {};
+
+    const status = query.status;
+
+    // FILTER THEO STATUS
+    if (status === "normal") {
+      filter.fail_rate = { $lte: 20 };
+    }
+
+    if (status === "warning") {
+      filter.fail_rate = { $gt: 20, $lte: 40 };
+    }
+
+    if (status === "critical") {
+      filter.fail_rate = { $gt: 40 };
+    }
+
+    const data = await WeeklyW2Report
+      .find(filter)
+      .sort({ createdAt: -1 });
+
+    return { data };
+
+  } catch (err) {
+    console.error("getTotalWeeklyLogs error:", err);
+    throw err;
+  }
+};
+const saveWeeklyW2Report = async (data) => {
+  
+  return await WeeklyW2Report.create({
+    ...data,
+    createdAt: new Date()
+  });
+};
+const deleteWeeklyW2Report = async (id) => {
+  try {
+ 
+    const result = await WeeklyW2Report.deleteOne({ _id: id });
+
+    if (!result) {
+      throw new Error("Not found");
+    }
+
+    return { message: "Deleted successfully" };
+  } catch (err) {
+    throw err;
+  }
+};
+module.exports = { getDataService,saveWeeklyW2Report,getTotalWeeklyLogs ,deleteWeeklyW2Report};

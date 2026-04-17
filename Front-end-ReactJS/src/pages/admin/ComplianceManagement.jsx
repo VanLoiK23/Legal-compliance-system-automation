@@ -49,7 +49,6 @@ const ComplianceManagement = () => {
     if (!Array.isArray(results)) return [];
     
     return results.filter((item) => {
-      // Dùng (item.truong_du_lieu || "") để không bao giờ bị lỗi toLowerCase
       const name = item.evidenceName || "";
       const ruleId = item.matchedRuleId || "";
 
@@ -82,6 +81,13 @@ const ComplianceManagement = () => {
         setActiveMenuId(null);
       }
     }
+  };
+
+  // --- BỔ SUNG: Hàm xác định màu sắc cho Risk Score ---
+  const getScoreColor = (score) => {
+    if (score >= 8) return "text-danger fw-bold"; // Đỏ nếu rủi ro cao
+    if (score >= 5) return "text-warning fw-bold"; // Vàng nếu rủi ro trung bình
+    return "text-success fw-bold"; // Xanh nếu rủi ro thấp
   };
 
   const getSeverityBadge = (sev) => {
@@ -133,6 +139,8 @@ const ComplianceManagement = () => {
                 <th className="ps-4 py-3">Hồ sơ</th>
                 <th>Mã Luật</th>
                 <th>Kết quả</th>
+                {/* BỔ SUNG: Header Cột Điểm rủi ro */}
+                <th>Điểm rủi ro</th>
                 <th>Mức độ</th>
                 <th>Thời gian</th>
                 <th className="text-end pe-4">Thao tác</th>
@@ -149,6 +157,10 @@ const ComplianceManagement = () => {
                         {item.complianceRes === 'Vi phạm' ? <ShieldAlert size={14} className="me-1"/> : <CheckCircle2 size={14} className="me-1"/>}
                         {item.complianceRes}
                       </span>
+                    </td>
+                    {/* BỔ SUNG: Hiển thị Điểm rủi ro */}
+                    <td className={getScoreColor(item.riskScore)}>
+                      {item.riskScore || 0}/10
                     </td>
                     <td>{getSeverityBadge(item.severity)}</td>
                     <td className="text-muted small">{new Date(item.timestamp).toLocaleString('vi-VN')}</td>
@@ -171,7 +183,7 @@ const ComplianceManagement = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center py-4 text-muted">Không tìm thấy dữ liệu phù hợp</td>
+                  <td colSpan="7" className="text-center py-4 text-muted">Không tìm thấy dữ liệu phù hợp</td>
                 </tr>
               )}
             </tbody>
@@ -179,7 +191,7 @@ const ComplianceManagement = () => {
         </div>
       </div>
 
-      {/* ĐÃ BỔ SUNG: Thanh Phân Trang (Pagination) */}
+      {/* Thanh Phân Trang */}
       {totalPages > 1 && (
         <div className="d-flex justify-content-between align-items-center mt-2 px-2">
           <span className="text-muted small">Trang {currentPage} / {totalPages}</span>
@@ -207,26 +219,55 @@ const ComplianceManagement = () => {
         <div className="modal show d-block" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 2000 }}>
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content border-0 rounded-4 shadow-lg">
-              <div className="modal-header border-0 pt-4 px-4">
-                <h5 className="fw-bold"><AlertCircle className="me-2 text-primary"/>Phân tích chi tiết từ AI</h5>
+              <div className="modal-header border-0 pt-4 px-4 d-flex justify-content-between">
+                <h5 className="fw-bold"><AlertCircle className="me-2 text-primary"/>Báo cáo thẩm định AI</h5>
                 <button className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
-              <div className="modal-body p-4">
-                <div className="row g-4">
-                  <div className="col-md-6">
-                    <label className="text-muted small fw-bold">LÝ DO VI PHẠM (AI REASONING)</label>
-                    <div className="p-3 bg-light rounded-3 mt-2" style={{ maxHeight: "300px", overflowY: "auto" }}>
-                      {selectedResult.aiReasoning}
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="text-muted small fw-bold">GIẢI THÍCH CHUYÊN SÂU (AI EXPLAIN)</label>
-                    <div className="p-3 bg-soft-primary rounded-3 mt-2 text-primary" style={{ maxHeight: "300px", overflowY: "auto" }}>
-                      {selectedResult.aiExplain || "Chưa có giải thích chi tiết."}
-                    </div>
-                  </div>
-                </div>
-              </div>
+<div className="modal-body p-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+    {/* 1. Thanh trạng thái tổng quát (Giữ nguyên và thêm Risk Score) */}
+    <div className="alert alert-info border-0 rounded-3 mb-4 py-2 small d-flex justify-content-between align-items-center">
+        <span><strong>Chỉ số rủi ro:</strong> {selectedResult.riskScore}/10</span>
+        <span className="badge bg-white text-info">{selectedResult.severity}</span>
+    </div>
+
+    {/* 2. Báo cáo trực quan (NẾU CÓ - Phần này thầy rất thích) */}
+    {selectedResult.richReport && (
+        <div className="mb-4">
+            <label className="text-muted small fw-bold mb-2 d-block">BÁO CÁO VI PHẠM TRỰC QUAN (HIGHLIGHT)</label>
+            <div 
+                className="p-3 bg-white border rounded-3"
+                style={{ borderLeft: '4px solid #dc3545' }}
+                dangerouslySetInnerHTML={{ __html: selectedResult.richReport }}
+            />
+        </div>
+    )}
+
+    <div className="row g-4">
+        {/* 3. Hai phần cũ của nhóm (Reasoning & Explain) */}
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold">LÝ DO VI PHẠM (AI REASONING)</label>
+            <div className="p-3 bg-light rounded-3 mt-2 small">{selectedResult.aiReasoning}</div>
+        </div>
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold">PHÂN TÍCH CHUYÊN SÂU (AI EXPLAIN)</label>
+            <div className="p-3 bg-soft-primary rounded-3 mt-2 text-primary small">{selectedResult.aiExplain}</div>
+        </div>
+
+        {/* 4. Hai phần MỚI THÊM VÀO (Violating Text & Suggested Fix) */}
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold text-danger">ĐOẠN VĂN VI PHẠM CỤ THỂ</label>
+            <div className="p-3 bg-danger bg-opacity-10 rounded-3 mt-2 text-danger small fw-bold">
+                "{selectedResult.violatingText || "N/A"}"
+            </div>
+        </div>
+        <div className="col-md-6">
+            <label className="text-muted small fw-bold text-success">GỢI Ý SỬA ĐỔI TỪ AI</label>
+            <div className="p-3 bg-success bg-opacity-10 rounded-3 mt-2 text-success small">
+                {selectedResult.suggestedFix || "Chưa có gợi ý sửa đổi."}
+            </div>
+        </div>
+    </div>
+</div>
               <div className="modal-footer border-0 p-4 pt-0">
                 <button className="btn btn-primary w-100 rounded-3 fw-bold" onClick={() => setShowModal(false)}>Đóng</button>
               </div>

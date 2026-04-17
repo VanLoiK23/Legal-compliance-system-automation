@@ -1,6 +1,8 @@
-const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById, fetchRuleByUrl, updateRulesByUrl, getRulesThisWeek, getRulesIsEffect} = require('../services/ruleService');
+const {getRules,getDetailRule,addNewRule,updateExistRule,deleteRuleById, fetchRuleByUrl, updateRulesByUrl, getRulesThisWeek, getRulesIsEffect, addNewRuleNeedValidation,getRulesNeedValidation,confirmRule} = require('../services/ruleService');
 const {addLogging,getLogging, getLastLogTypeW1} = require('../services/loggingService');
 const redisClient = require('../utils/redis');
+const Rule = require('../models/rule');
+const moment = require('moment');
 
 const getRuleExist = async (req, res) => {
   try {
@@ -17,6 +19,37 @@ const getRuleExist = async (req, res) => {
 
       // 2. Nếu không có cache, lấy từ DB
       const data = await getRules();
+      if (data && Array.isArray(data)) {
+          const rules = formatRuleData(data); 
+
+          // 3. Lưu vào Redis (Cache trong 1 tiếng - 3600 giây)
+          if (redisClient.isOpen) {await redisClient.setEx(cacheKey, 3600, JSON.stringify(rules));}
+          
+          return res.status(200).json(rules);
+      }
+
+      return res.status(500).json({ message: "Fetch data fail!!" });
+  } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+const getRulePending = async (req, res) => {
+  try {
+      const cacheKey = "rules:pending"; // Key riêng cho tất cả luật
+      
+      // 1. Kiểm tra cache
+      if (redisClient.isOpen) {
+        const cachedRules = await redisClient.get(cacheKey);
+        if (cachedRules) {
+          console.log("⚡ [Redis] Trả về dữ liệu từ Cache (getRulePending)");
+          return res.status(200).json(JSON.parse(cachedRules));
+        }
+      }
+
+      // 2. Nếu không có cache, lấy từ DB
+      const data = await getRulesNeedValidation();
       if (data && Array.isArray(data)) {
           const rules = formatRuleData(data); 
 
@@ -114,6 +147,76 @@ const upsertRule = async (req,res)=>{
             {
                 rules:ruleList,
                 message: 'success'
+            }
+        );
+
+    }catch(err){
+        console.log(err)
+
+        return res.sendStatus(500);
+
+    }
+}
+
+const addRulePending = async (req,res)=>{
+
+    try{
+        const ruleList = req.body;
+
+        console.log(ruleList)
+
+        console.log(Array.isArray(ruleList))
+    
+        if(Array.isArray(ruleList)){
+            ruleList.forEach(rule => {
+                console.log(rule)
+    
+                let result = addNewRuleNeedValidation(rule);
+    
+                console.log(result)
+            });
+        }
+
+        if (redisClient.isOpen) {
+          await redisClient.del("rules:pending");
+        }
+
+        return res.status(200).json(
+            {
+                rules:ruleList,
+                message: 'success'
+            }
+        );
+
+    }catch(err){
+        console.log(err)
+
+        return res.sendStatus(500);
+
+    }
+}
+
+const updateRulePending = async (req,res)=>{
+
+    try{
+        const rule = req.body;
+
+        console.log(rule)
+
+        let result = confirmRule(rule);
+    
+        console.log(result)
+
+        if (redisClient.isOpen) {
+          await redisClient.del("rules:pending");
+          await redisClient.del("rules:all");
+          await redisClient.del("rules:effective");
+        }
+
+        return res.status(200).json(
+            {
+                rules:rule,
+                message: 'update success'
             }
         );
 
@@ -402,4 +505,40 @@ const fetchLastLogW1 = async (req,res)=>{
     }
 }
 
-module.exports = {getRuleExist,getRuleCheckCompliance,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchRuleWeekly,fetchLog,insertLog,fetchLastLogW1}
+const fetchRuleWeeklyForReport = async (req, res) => {
+    try {
+        const sevenDaysAgo = moment().subtract(7, 'days').startOf('day').toDate();
+
+        const today = moment().endOf('day').toDate();
+
+        // 1. Lấy tất cả luật trong 7 ngày qua
+        const weeklyRules = await Rule.find({
+            extracted_at: { $gte: sevenDaysAgo, $lte: today }
+        }).sort({ extracted_at: -1 });
+
+        // 2. Tính toán thống kê theo mức độ rủi ro (Severity)
+        const stats = {
+            total: weeklyRules.length,
+            high: weeklyRules.filter(r => r.severity === 'high').length,
+            medium: weeklyRules.filter(r => r.severity === 'medium').length,
+            low: weeklyRules.filter(r => r.severity === 'low').length,
+            weekRange: `${moment(sevenDaysAgo).format('DD/MM')} - ${moment(today).format('DD/MM/YYYY')}`
+        };
+
+        // 3. Lấy Top 5 luật tiêu biểu nhất (ví dụ các luật High mới nhất)
+        const topRules = weeklyRules.slice(0, 5).map(r => ({
+            rule_id: r.rule_id,
+            title: r.title,
+            severity_icon: r.severity === 'high' ? '🔴' : (r.severity === 'medium' ? '🟠' : '🟢')
+        }));
+
+        res.status(200).json({
+            success: true,
+            data: { stats, topRules }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = {getRuleExist,getRuleCheckCompliance,upsertRule,updateRule,deleteRule,filter_rule_exist,check_change_and_update,fetchRuleWeekly,fetchLog,insertLog,fetchLastLogW1,fetchRuleWeeklyForReport,getRulePending,addRulePending,updateRulePending}

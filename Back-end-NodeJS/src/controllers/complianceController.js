@@ -2,7 +2,7 @@ const ComplianceResult = require('../models/complianceResult');
 
 const saveComplianceResult = async (req, res) => {
     try {
-        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain} = req.body;
+        const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore, timestamp, fileHash, violatingText, suggestedFix, richReport } = req.body;
         
         const newResult = new ComplianceResult({
             evidenceName,
@@ -10,17 +10,17 @@ const saveComplianceResult = async (req, res) => {
             complianceRes,
             aiReasoning,
             severity: severity || 'LOW',
-            aiExplain
+            aiExplain,
+            riskScore: riskScore || 0,
+            timestamp: new Date(),
+            fileHash: fileHash,
+            violatingText,   
+            suggestedFix,    
+            richReport
         });
 
         await newResult.save();
 
-        // if (complianceRes === 'Vi phạm') {
-        //     await Rule.findOneAndUpdate(
-        //         { rule_id: matchedRuleId }, 
-        //         { $inc: { violationCount: 1 } } // $inc là lệnh tăng giá trị trong MongoDB
-        //     );
-        // }
 
         res.status(201).json({ message: "✅ Lưu kết quả tuân thủ thành công!", data: newResult });
     } catch (error) {
@@ -125,12 +125,46 @@ const fetchDataForDashboard = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const checkDuplicate = async (req, res) => {
+    try {
+        const existing = await ComplianceResult.findOne({ fileHash: req.params.hash });
+        res.status(200).json({ isDuplicate: !!existing, data: existing });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+const updateStatus = async (req, res) => {
+    try {
+        const { id } = req.params; // Lấy ID từ URL
+        const { action } = req.query; // Lấy Approved/Rejected từ ?action=...
 
+        const result = await ComplianceResult.findByIdAndUpdate(
+            id, 
+            { status: action }, 
+            { new: true }
+        );
+
+        if (!result) return res.status(404).send("Không tìm thấy hồ sơ");
+
+        // Trả về một trang HTML thông báo đơn giản
+        res.send(`
+            <div style="text-align:center; padding:50px; font-family:sans-serif;">
+                <h1 style="color:green;">✅ XỬ LÝ THÀNH CÔNG</h1>
+                <p>Hồ sơ đã được chuyển sang trạng thái: <b>${action}</b></p>
+                <p>Bạn có thể đóng cửa sổ này và quay lại Dashboard.</p>
+            </div>
+        `);
+    } catch (error) {
+        res.status(500).send("Lỗi hệ thống: " + error.message);
+    }
+};
 module.exports = { 
     saveComplianceResult, 
     getAllResults, 
     getResultById,
     deleteResult,
     getStats,
-    fetchDataForDashboard 
+    fetchDataForDashboard,
+    checkDuplicate,
+    updateStatus 
 };

@@ -9,7 +9,11 @@ const ruleSchema = new mongoose.Schema({
     severity: String,
     source_url: String,
     status: String,
+    is_validated: Boolean,
+    ai_check_result: Object,
     source_pubDate: Date,
+    reliability:String,
+    source_provider: Number,
     extracted_at: Date,
 });
 
