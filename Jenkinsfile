@@ -50,7 +50,7 @@ pipeline {
     post {
         success {
             echo 'Deploy VPS thanh cong!'
-        } 
+        }
         failure {
             echo 'Deploy VPS that bai!'
         }
