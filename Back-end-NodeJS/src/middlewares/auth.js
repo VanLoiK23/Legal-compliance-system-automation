@@ -49,7 +49,7 @@ const checkIsValidOrigin = (req, res, next) => {
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || "";
     const origin = req.get('origin') || req.get('referer') || "";
 
-    console.log(`Debug - IP: ${clientIp}, Origin: ${origin}`);
+    console.log(`Debug - IP: ${clientIp}, Origin: ${origin}, Path: ${req.path}`);
 
     const white_list = [
         '103.200.22.83', 
@@ -70,6 +70,11 @@ const checkIsValidOrigin = (req, res, next) => {
 
     // Kiểm tra nếu là localhost (Dành cho Front-end dev)
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return next();
+    }
+
+    //check heal care from jenskins
+    if (req.path === '/rule') {
         return next();
     }
 
