@@ -43,4 +43,4 @@ const getAuditStats = async (req, res) => {
 
 
 
-module.exports = { createAuditLog, getAuditLogs };
+module.exports = { createAuditLog, getAuditLogs, getAuditStats };
