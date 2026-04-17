@@ -9,7 +9,10 @@ const complianceResultSchema = new mongoose.Schema({
     aiExplain: { type: String },
     riskScore: { type: Number, min: 0, max: 10, default: 0 }, // Tương ứng riskScore
     timestamp: { type: Date, default: Date.now },
-    fileHash: { type: String, unique: true }
+    fileHash: { type: String, unique: true },
+    violatingText: { type: String },
+    suggestedFix: { type: String },
+    richReport: { type: String }
 });
 
 module.exports = mongoose.model('ComplianceResult', complianceResultSchema);
