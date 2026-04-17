@@ -45,16 +45,33 @@ const getDataService = async () => {
     throw err;
   }
 };
-const getTotalWeeklyLogs = async () => {
+const getTotalWeeklyLogs = async (query = {}) => {
   try {
-    const data = await WeeklyW2Report.find().sort({createdAt: -1})
+    const filter = {};
 
-    return {
-      data
-    };
+    const status = query.status;
+
+    // FILTER THEO STATUS
+    if (status === "normal") {
+      filter.fail_rate = { $lte: 20 };
+    }
+
+    if (status === "warning") {
+      filter.fail_rate = { $gt: 20, $lte: 40 };
+    }
+
+    if (status === "critical") {
+      filter.fail_rate = { $gt: 40 };
+    }
+
+    const data = await WeeklyW2Report
+      .find(filter)
+      .sort({ createdAt: -1 });
+
+    return { data };
 
   } catch (err) {
-    console.error("getDataService error:", err);
+    console.error("getTotalWeeklyLogs error:", err);
     throw err;
   }
 };

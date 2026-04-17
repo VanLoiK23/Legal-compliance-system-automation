@@ -6,47 +6,50 @@ const WeeklyReportW2 = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [logs, setLogs] = useState([]);
+//Filter
+const [statusFilter, setStatusFilter] = useState("");
 
   // PAGINATION
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const res = await instance.get("/weekly-w2/getdata");
-        const list = res?.data?.data ?? [];
+      const res = await instance.get("/weekly-w2/getdata", {
+        params: {
+          status: statusFilter
+        }
+      });
 
-        // latest report
-        const latest = [...list].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        )[0];
+      const list = res?.data?.data ?? [];
 
-        setReport(latest);
-        setLogs(list);
+      const latest = [...list].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )[0];
 
-        // reset page
-        setCurrentPage(1);
+      setReport(latest);
+      setLogs(list);
+      setCurrentPage(1);
 
-      } catch (err) {
-        setError("Không thể tải báo cáo weekly W2");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReport();
-  }, []);
-
-  const getStatusInfo = (rate = 0) => {
-    if (rate > 40) return { text: "NGHIÊM TRỌNG", color: "danger" };
-    if (rate >= 20) return { text: "CẢNH BÁO", color: "warning" };
-    if (rate >= 10) return { text: "CHÚ Ý", color: "info" };
-    return { text: "BÌNH THƯỜNG", color: "success" };
+    } catch (err) {
+      setError("Không thể tải báo cáo weekly W2");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  fetchData();
+}, [statusFilter]); 
+
+ const getStatusInfo = (rate = 0) => {
+  if (rate > 40) return { text: "NGHIÊM TRỌNG", color: "danger" };
+  if (rate > 20) return { text: "CẢNH BÁO", color: "warning" };
+  return { text: "BÌNH THƯỜNG", color: "success" };
+};
 
   if (loading) return <div className="p-4">⏳ Đang tải...</div>;
   if (error) return <div className="p-4 text-danger">{error}</div>;
@@ -151,7 +154,16 @@ const handleDelete = async (id) => {
       {/* LOG TABLE */}
       <div className="mt-4">
         <h5>📊 Danh sách Weekly W2 Logs</h5>
-
+        <select
+  className="form-select mb-3"
+  value={statusFilter}
+  onChange={(e) => setStatusFilter(e.target.value)}
+>
+  <option value="">Tất cả</option>
+  <option value="normal">Bình thường</option>
+  <option value="warning">Cảnh báo</option>
+  <option value="critical">Nghiêm trọng</option>
+</select>
         <table className="table table-bordered table-hover">
           <thead>
             <tr>
@@ -182,24 +194,20 @@ const handleDelete = async (id) => {
 
                   <td>
                     <span
-                      className={`badge ${
-                        item.fail_rate > 40
-                          ? "bg-danger"
-                          : item.fail_rate >= 20
-                          ? "bg-warning"
-                          : item.fail_rate >= 10
-                          ? "bg-info"
-                          : "bg-success"
-                      }`}
-                    >
-                      {item.fail_rate > 40
-                        ? "NGHIÊM TRỌNG"
-                        : item.fail_rate >= 20
-                        ? "CẢNH BÁO"
-                        : item.fail_rate >= 10
-                        ? "CHÚ Ý"
-                        : "BÌNH THƯỜNG"}
-                    </span>
+  className={`badge ${
+    item.fail_rate > 40
+      ? "bg-danger"
+      : item.fail_rate > 20
+      ? "bg-warning"
+      : "bg-success"
+  }`}
+>
+  {item.fail_rate > 40
+    ? "NGHIÊM TRỌNG"
+    : item.fail_rate > 20
+    ? "CẢNH BÁO"
+    : "BÌNH THƯỜNG"}
+</span>
                   </td>
 
                   <td>
