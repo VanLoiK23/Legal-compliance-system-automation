@@ -65,5 +65,18 @@ const saveWeeklyW2Report = async (data) => {
     createdAt: new Date()
   });
 };
+const deleteWeeklyW2Report = async (id) => {
+  try {
+ 
+    const result = await WeeklyW2Report.deleteOne({ _id: id });
 
-module.exports = { getDataService,saveWeeklyW2Report,getTotalWeeklyLogs };
+    if (!result) {
+      throw new Error("Not found");
+    }
+
+    return { message: "Deleted successfully" };
+  } catch (err) {
+    throw err;
+  }
+};
+module.exports = { getDataService,saveWeeklyW2Report,getTotalWeeklyLogs ,deleteWeeklyW2Report};

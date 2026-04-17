@@ -34,5 +34,20 @@ const saveWeeklyW2Data = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+const deteleDatareport = async (req, res) => {
+  try {
+     const {id} = req.params
 
-module.exports = { getDataw2,saveWeeklyW2Data ,gettotalData};
+    const result = await weeklyw2Service.deleteWeeklyW2Report(id);
+
+    return res.json({
+      data: result
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message || "Error deleting"
+    });
+  }
+};
+
+module.exports = { getDataw2,saveWeeklyW2Data ,gettotalData,deteleDatareport};
