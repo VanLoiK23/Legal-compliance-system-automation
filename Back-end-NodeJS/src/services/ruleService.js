@@ -48,6 +48,7 @@ const addNewRuleNeedValidation = async (rule) => {
       ai_check_result: {
         issues: rule.issues || "Chưa có lý do từ AI",
         suggestion: rule.suggestion || "Chưa có đề xuất từ AI",
+        confidence_score: rule.confidence_score || 60
       },
       source_url: rule.source.url,
       source_pubDate: dateObject,
@@ -65,17 +66,15 @@ const addNewRuleNeedValidation = async (rule) => {
 
 const getRules = async () => {
   try {
-    //get All rule for check exist
-    const rules = await Rule.find({});
-
-    // console.log(rules);
+    const rules = await Rule.find({ status: { $ne: "Pending" } });
 
     return rules;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return null;
   }
 };
+
 
 const getRulesIsEffect = async () => {
   try {
