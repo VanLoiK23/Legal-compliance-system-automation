@@ -13,8 +13,10 @@ const getDataw2 = async (req, res) => {
 };
 const gettotalData = async (req, res) => {
   try {
-    const result = await weeklyw2Service.getTotalWeeklyLogs();
+    const result = await weeklyw2Service.getTotalWeeklyLogs(req.query);
+
     res.json(result);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
