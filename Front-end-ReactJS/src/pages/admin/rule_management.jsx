@@ -36,6 +36,13 @@ const RuleManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const providerMap = {
+  "1": "Công báo Chính Phủ",
+  "2": "Bộ Tư Pháp",
+  "3": "Hệ thống văn bản Chính Phủ"
+};
+
+
   useEffect(() => {
     const fetchRules = async () => {
       try {
@@ -592,13 +599,8 @@ const RuleManagement = () => {
       className="form-control bg-light border-0 rounded-3 fw-bold text-primary"
       style={{ fontSize: '0.85rem' }}
       readOnly={true} // Khóa hoàn toàn không cho sửa
-      value={
-  selectedRule.reliability?.toLowerCase().includes('highest') 
-    ? "Công báo Chính Phủ" 
-    : selectedRule.reliability?.toLowerCase().includes('high') 
-    ? "Bộ Tư Pháp" 
-    : "Nguồn tin cậy khác"
-}
+      value={providerMap[String(selectedRule.source_provider)] || "Nguồn tin cậy khác"}
+
     />
     <span className="input-group-text bg-light border-0">
       <Lock size={12} className="text-muted" />
