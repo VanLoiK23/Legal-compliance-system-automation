@@ -25,5 +25,22 @@ const getAuditLogs = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const getAuditStats = async (req, res) => {
+    try {
+        const totalEvents = await SystemAudit.countDocuments();
+        const duplicateCount = await SystemAudit.countDocuments({ message: /trùng lặp/ }); // Đếm dựa trên từ khóa trong log
+        const errorCount = await SystemAudit.countDocuments({ eventType: 'ERROR' });
 
-module.exports = { createAuditLog, getAuditLogs };
+        res.status(200).json({
+            totalEvents,
+            duplicateCount,
+            errorCount
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+
+module.exports = { createAuditLog, getAuditLogs, getAuditStats };

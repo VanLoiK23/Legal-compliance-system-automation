@@ -12,7 +12,8 @@ const complianceResultSchema = new mongoose.Schema({
     fileHash: { type: String, unique: true },
     violatingText: {Stype: String },
     suggestedFix: { type: String },
-    richReport: { type: String }
+    richReport: { type: String },
+    status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' }
 });
 
 module.exports = mongoose.model('ComplianceResult', complianceResultSchema);
