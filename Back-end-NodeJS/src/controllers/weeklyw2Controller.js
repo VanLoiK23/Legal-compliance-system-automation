@@ -11,6 +11,15 @@ const getDataw2 = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+const gettotalData = async (req, res) => {
+  try {
+    const result = await weeklyw2Service.getTotalWeeklyLogs();
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 const saveWeeklyW2Data = async (req, res) => {
   try {
     const data = req.body;
@@ -25,4 +34,5 @@ const saveWeeklyW2Data = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-module.exports = { getDataw2,saveWeeklyW2Data };
+
+module.exports = { getDataw2,saveWeeklyW2Data ,gettotalData};

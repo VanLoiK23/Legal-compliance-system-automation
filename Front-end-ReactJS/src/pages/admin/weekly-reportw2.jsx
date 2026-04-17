@@ -5,45 +5,59 @@ const WeeklyReportW2 = () => {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [logs, setLogs] = useState([]);
+useEffect(() => {
+  const fetchReport = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-  useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        setLoading(true);
-        setError("");
+      const res = await instance.get("/weekly-w2/getdata");
 
-        const res = await instance.get("/weekly-w2");
+      const list = res?.data?.data ?? [];
 
-        // 🔥 FIX QUAN TRỌNG: handle mọi kiểu response
-        const data = res?.data ?? res;
+      // latest report
+      const latest = [...list].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      )[0];
 
-        setReport(data);
-      } catch (err) {
-        console.error(err);
-        setError("Không thể tải báo cáo weekly W2");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReport();
-  }, []);
-
-  const getStatusInfo = (status) => {
-    if (status === 2) return { text: "NGHIÊM TRỌNG", color: "danger" };
-    if (status === 1) return { text: "CẢNH BÁO", color: "warning" };
-    return { text: "BÌNH THƯỜNG", color: "success" };
+      setReport(latest);
+      setLogs(list);  
+    } catch (err) {
+      setError("Không thể tải báo cáo weekly W2");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  fetchReport();
+}, []);
+
+const getStatusInfo = (rate = 0) => {
+  if (rate > 40) {
+    return { text: "NGHIÊM TRỌNG", color: "danger" };
+  }
+
+  if (rate >= 20) {
+    return { text: "CẢNH BÁO", color: "warning" };
+  }
+
+  if (rate >= 10) {
+    return { text: "CHÚ Ý", color: "info" };
+  }
+
+  return { text: "BÌNH THƯỜNG", color: "success" };
+};
 
   if (loading) return <div className="p-4">⏳ Đang tải...</div>;
   if (error) return <div className="p-4 text-danger">{error}</div>;
   if (!report) return <div className="p-4">Không có dữ liệu</div>;
 
-  const statusInfo = getStatusInfo(report.status);
+  const statusInfo = getStatusInfo(report.fail_rate);
 
   return (
     <div className="p-4">
-      <h3>📊 Weekly Compliance Report W2 - Tỷ lệ file lỗi trong 7 ngày vừa qua</h3>
+      <h3>📊 Weekly Compliance Report W2 - Báo cáo tỷ lệ file lỗi mới nhất</h3>
 
       {/* STATUS CARD */}
       <div className={`alert alert-${statusInfo.color} mt-3`}>
@@ -100,18 +114,73 @@ const WeeklyReportW2 = () => {
             </tr>
             <tr>
               <th>Status</th>
-              <td>{report.status}</td>
+              <td>{statusInfo.text}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <h3>📊Tổng danh sách nhật ký tỷ lệ file lỗi file </h3>
-      {/* RAW DEBUG */}
-      <div className="mt-4">
-        <pre className="bg-dark text-white p-3 rounded">
-          {JSON.stringify(report, null, 2)}
-        </pre>
-      </div>
+     {/* LOG TABLE */}
+<div className="mt-4">
+  <h5>📊 Danh sách Weekly W2 Logs</h5>
+
+  <table className="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Total Docs</th>
+        <th>Fail Docs</th>
+        <th>Fail Rate</th>
+        <th>Status</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {logs.length === 0 ? (
+        <tr>
+          <td colSpan="6" className="text-center">
+            Không có dữ liệu
+          </td>
+        </tr>
+      ) : (
+        logs.map((item, index) => (
+          <tr key={item._id}>
+            <td>{index + 1}</td>
+            <td>{item.total_docs}</td>
+            <td className="text-danger">{item.fail_docs}</td>
+            <td>{item.fail_rate?.toFixed(2)}%</td>
+
+         <td>
+  <span
+    className={`badge ${
+      item.fail_rate > 40
+        ? "bg-danger"
+        : item.fail_rate >= 20
+        ? "bg-warning"
+        : item.fail_rate >= 10
+        ? "bg-info"
+        : "bg-success"
+    }`}
+  >
+    {item.fail_rate > 40
+      ? "NGHIÊM TRỌNG"
+      : item.fail_rate >= 20
+      ? "CẢNH BÁO"
+      : item.fail_rate >= 10
+      ? "CHÚ Ý"
+      : "BÌNH THƯỜNG"}
+  </span>
+</td>
+
+            <td>
+              {new Date(item.createdAt).toLocaleString("vi-VN")}
+            </td>
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
     </div>
   );
 };
