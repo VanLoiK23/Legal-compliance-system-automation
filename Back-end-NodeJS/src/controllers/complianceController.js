@@ -133,6 +133,16 @@ const checkDuplicate = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const updateStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action } = req.query; // 'Approved' hoặc 'Rejected'
+        const result = await ComplianceResult.findByIdAndUpdate(id, { status: action }, { new: true });
+        res.send(`<h1>Hồ sơ đã được xử lý: ${action}</h1><p>Bạn có thể đóng cửa sổ này.</p>`);
+    } catch (error) {
+        res.status(500).send("Lỗi xử lý phê duyệt");
+    }
+};
 module.exports = { 
     saveComplianceResult, 
     getAllResults, 
