@@ -11,9 +11,9 @@ const saveComplianceResult = async (req, res) => {
             aiReasoning,
             severity: severity || 'LOW',
             aiExplain,
-            riskScore: { type: Number, default: 0 },
+            riskScore: riskScore || 0,
             timestamp: new Date(),
-            fileHash: req.file.filename,
+            fileHash: fileHash,
             violatingText,   
             suggestedFix,    
             richReport
