@@ -135,24 +135,27 @@ const checkDuplicate = async (req, res) => {
 };
 const updateStatus = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { action } = req.query; // Approved hoặc Rejected
+        const { id } = req.params; // Lấy ID từ URL
+        const { action } = req.query; // Lấy Approved/Rejected từ ?action=...
 
-        // Tìm và cập nhật trạng thái
         const result = await ComplianceResult.findByIdAndUpdate(
             id, 
             { status: action }, 
             { new: true }
         );
 
-        if (!result) {
-            return res.status(404).send("<h1>Lỗi: Không tìm thấy hồ sơ!</h1>");
-        }
+        if (!result) return res.status(404).send("Không tìm thấy hồ sơ");
 
-        res.send(`<h1>Xử lý thành công!</h1><p>Hồ sơ đã được chuyển sang trạng thái: <b>${action}</b></p>`);
+        // Trả về một trang HTML thông báo đơn giản
+        res.send(`
+            <div style="text-align:center; padding:50px; font-family:sans-serif;">
+                <h1 style="color:green;">✅ XỬ LÝ THÀNH CÔNG</h1>
+                <p>Hồ sơ đã được chuyển sang trạng thái: <b>${action}</b></p>
+                <p>Bạn có thể đóng cửa sổ này và quay lại Dashboard.</p>
+            </div>
+        `);
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Lỗi server khi phê duyệt");
+        res.status(500).send("Lỗi hệ thống: " + error.message);
     }
 };
 module.exports = { 
