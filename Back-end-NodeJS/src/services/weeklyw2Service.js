@@ -45,6 +45,19 @@ const getDataService = async () => {
     throw err;
   }
 };
+const getTotalWeeklyLogs = async () => {
+  try {
+    const data = await WeeklyW2Report.find().sort({createdAt: -1})
+
+    return {
+      data
+    };
+
+  } catch (err) {
+    console.error("getDataService error:", err);
+    throw err;
+  }
+};
 const saveWeeklyW2Report = async (data) => {
   
   return await WeeklyW2Report.create({
@@ -53,4 +66,4 @@ const saveWeeklyW2Report = async (data) => {
   });
 };
 
-module.exports = { getDataService,saveWeeklyW2Report };
+module.exports = { getDataService,saveWeeklyW2Report,getTotalWeeklyLogs };
