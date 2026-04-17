@@ -45,6 +45,19 @@ const getDataService = async () => {
     throw err;
   }
 };
+const getTotalWeeklyLogs = async () => {
+  try {
+    const data = await WeeklyW2Report.find().sort({createdAt: -1})
+
+    return {
+      data
+    };
+
+  } catch (err) {
+    console.error("getDataService error:", err);
+    throw err;
+  }
+};
 const saveWeeklyW2Report = async (data) => {
   
   return await WeeklyW2Report.create({
@@ -52,5 +65,18 @@ const saveWeeklyW2Report = async (data) => {
     createdAt: new Date()
   });
 };
+const deleteWeeklyW2Report = async (id) => {
+  try {
+ 
+    const result = await WeeklyW2Report.deleteOne({ _id: id });
 
-module.exports = { getDataService,saveWeeklyW2Report };
+    if (!result) {
+      throw new Error("Not found");
+    }
+
+    return { message: "Deleted successfully" };
+  } catch (err) {
+    throw err;
+  }
+};
+module.exports = { getDataService,saveWeeklyW2Report,getTotalWeeklyLogs ,deleteWeeklyW2Report};

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // const {register,signin,fetchUser,deleteUserById,updateUserById} = require('../controllers/usersController')
-const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_rule_exist, check_change_and_update, fetchRuleWeekly, fetchLastLogW1, getRuleCheckCompliance,fetchRuleWeeklyForReport} = require('../controllers/ruleController')
+const {upsertRule,getRuleExist,updateRule,deleteRule,insertLog,fetchLog, filter_rule_exist, check_change_and_update, fetchRuleWeekly, fetchLastLogW1, getRuleCheckCompliance,fetchRuleWeeklyForReport,addRulePending,getRulePending,updateRulePending} = require('../controllers/ruleController')
 const {auth,authIsAdmin,checkIsValidOrigin} = require('../middlewares/auth')
 const { receiveData ,getData, deleteMetadata} = require('../controllers/metadataController');
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
@@ -19,7 +19,7 @@ router.get('/', (req,res)=>{
         mess:'Hello world API'
     })
 }); 
-const {getDataw2,saveWeeklyW2Data} = require('../controllers/weeklyw2Controller');
+const {getDataw2,saveWeeklyW2Data,gettotalData} = require('../controllers/weeklyw2Controller');
 //apply middleware for all routes
 router.use(checkIsValidOrigin);
 
@@ -30,6 +30,9 @@ router.get('/ruleActive',getRuleCheckCompliance);
 router.put('/rule',updateRule);
 router.post('/rule/check-duplicate',filter_rule_exist);
 router.put('/rule/check-change',check_change_and_update);
+router.get('/rule/pending',getRulePending);
+router.post('/rule/pending',addRulePending);
+router.put('/rule/pending',updateRulePending);
 router.get('/rule/weekly',fetchRuleWeekly);
 router.get('/rule/weekly-for-report',fetchRuleWeeklyForReport);
 router.delete('/rule/:rule_id',deleteRule);
@@ -64,6 +67,8 @@ router.post('/uploadData',upload.single('file'),ProcessUploadData)
 router.post('/checkFiles', checkFiles);
 router.get('/weekly-w2', getDataw2);
 router.post('/weekly-w2-save', saveWeeklyW2Data);
+router.get('/weekly-w2/getdata', gettotalData);
+router.delete('/weekly-w2/:id', gettotalData);
 
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
