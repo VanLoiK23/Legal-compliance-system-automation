@@ -68,6 +68,7 @@ router.post('/checkFiles', checkFiles);
 router.get('/weekly-w2', getDataw2);
 router.post('/weekly-w2-save', saveWeeklyW2Data);
 router.get('/weekly-w2/getdata', gettotalData);
+router.delete('/weekly-w2/:id', gettotalData);
 
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
