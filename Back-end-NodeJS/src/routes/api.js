@@ -8,7 +8,7 @@ const {ProcessUploadData} =  require('../controllers/uploadDataController')
 const {checkFiles} = require('../controllers/checkFilesController')
 const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard, checkDuplicate } = require('../controllers/complianceController');
 const { upsertTemplate, fetch_template_follow_template_key} = require('../controllers/templateController');
-
+const { createAuditLog, getAuditLogs } = require('../controllers/systemAuditController');
 //apply middleware for all
 // router.use([auth]);
 const upload = require('../middlewares/upload');
@@ -78,5 +78,8 @@ router.delete('/compliance-results/:id', deleteResult); // MỚI
 router.get('/compliance-stats', getStats); // MỚI
 router.get('/compliance-fetch', fetchDataForDashboard);
 router.get('/check-duplicate/:hash', checkDuplicate);
+
+router.post('/system-audit', createAuditLog);
+router.get('/system-audit', getAuditLogs);
 
 module.exports = router;
