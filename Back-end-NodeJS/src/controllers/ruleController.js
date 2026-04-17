@@ -270,6 +270,7 @@ const deleteRule = async (req,res)=>{
         if (redisClient.isOpen) {
           await redisClient.del("rules:all");
           await redisClient.del("rules:effective");
+          await redisClient.del("rules:pending");
         }
 
         return res.status(200).json(
