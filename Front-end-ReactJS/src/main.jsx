@@ -14,6 +14,7 @@ import RuleManagement from './pages/admin/rule_management.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import DocumentManagement from './pages/admin/DocumentManagement.jsx'; 
 import WeeklyReportW2 from './pages/admin/weekly-reportw2.jsx'; 
+import HomePage from './pages/HomePage.jsx';
 
 import ComplianceManagement from './pages/admin/ComplianceManagement.jsx';
 import SystemLogViewer from './pages/admin/LoggingManagement.jsx';
@@ -120,6 +121,11 @@ const router = createBrowserRouter([
     {
     path: "form-upload",
     element: <UploadPage/>
+  },
+  {
+    path: "home",
+    element: <HomePage/>
+
   },
   // {
   //   path: "register",
