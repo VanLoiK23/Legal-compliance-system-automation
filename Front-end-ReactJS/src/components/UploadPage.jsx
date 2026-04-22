@@ -76,18 +76,20 @@ export default function UploadPage() {
     <div
       className="d-flex justify-content-center align-items-center vh-100"
       style={{
-        background: "linear-gradient(135deg, #667eea, #764ba2, #ff758c)",
+        // background: "linear-gradient(135deg, #667eea, #764ba2, #ff758c)",
+        background: "linear-gradient(135deg, #1abc9c, #16a085)",
       }}
     >
       <div
         className="p-4"
         style={{
-          width: "460px",
+          width: "100%",
           borderRadius: "25px",
           backdropFilter: "blur(20px)",
           background: "rgba(255,255,255,0.15)",
           boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
           color: "#fff",
+          padding:"20px"
         }}
       >
         <h4 className="text-center mb-3 fw-bold">📄 Upload W2 Document</h4>
@@ -227,13 +229,15 @@ export default function UploadPage() {
 }
 
 const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  borderRadius: "10px",
-  border: "1px solid rgba(255,255,255,0.3)",
-  background: "rgba(255,255,255,0.15)",
-  color: "#fff",
+  width: "100%",           
+  padding: "12px",
+  borderRadius: "12px",
+  border: "1px solid #e5e7eb",
+  background: "#ffffff",
+  color: "#111",
   outline: "none",
-  fontSize: "13px",
-  marginTop: "4px",
+  fontSize: "15px",
+  marginTop: "6px",
+  transition: "0.2s",
+  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
 };
