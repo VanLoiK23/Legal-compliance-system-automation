@@ -4,7 +4,16 @@ const ProcessUploadData = async (req, res) => {
   try {
     const metaData = req.body;
     const file = req.file;
-
+    const captchaInput = req.body.captcha;
+    //check
+    if (!captchaInput || captchaInput.toLowerCase() !== req.session.captcha) {
+      return res.status(400).json({
+        success: false,
+        message: "Captcha không đúng",
+      });
+    }
+    req.session.captcha = null;
+    
     const ProcessMetadata = await uploadDataService.ProcessUploadData(metaData, file);
 
     // Trả JSON hợp lệ

@@ -1,8 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef ,useEffect} from "react";
 // Lưu ý: Đảm bảo đường dẫn này khớp với cấu trúc thư mục của bạn
 import instance from "../utils/axios.customize";
 
 export default function UploadPage() {
+const [captcha, setCaptcha] = useState("");
+const [captchaInput, setCaptchaInput] = useState("");
   const URL_HOST = import.meta.env.VITE_URL_HOST;
   const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState({
@@ -17,6 +19,15 @@ const ALLOWED_TYPE = "application/pdf";
 const MAX_FILES = 1;
 const [errors, setErrors] = useState({});
   const inputRef = useRef();
+//render captcha goi useEffect
+const fetchCaptcha = async () => {
+  const res = await instance.get("/captcha");
+  setCaptcha(res.data.captcha);
+};
+
+useEffect(() => {
+  fetchCaptcha();
+}, []);
 
    const handleFiles = (selectedFiles) => {
      setErrors((prev) => ({ ...prev, file: "" }));
@@ -116,10 +127,22 @@ const validateForm = () => {
     }));
     return;
   }
-  if (!validateForm()) return;
+ if (!validateForm()) {
+  fetchCaptcha(); // reload captcha
+  return;
+}
+  //check captcha
+  if (!captchaInput.trim()) {
+  setErrors(prev => ({
+    ...prev,
+    captcha: "Vui lòng nhập captcha"
+  }));
+  return;
+}
     const formData = new FormData(); 
     // Sửa chữ fipostle thành file
     formData.append("file", files[0].file); 
+    formData.append("captcha", captchaInput);
     Object.keys(metadata).forEach((key) => formData.append(key, metadata[key])); 
 
     try { 
@@ -140,12 +163,17 @@ const validateForm = () => {
         note: "",
         email: "",
       });
-
+      //reset captcha
+      setCaptchaInput("");
+      fetchCaptcha();
     } catch (err) {
       console.error(err);
       // Bắt thông báo lỗi từ backend trả về (nếu có), không có thì báo lỗi chung
       const errorMessage = err.response?.data?.message || err.response?.data || "Upload error!";
       alert(errorMessage); 
+      //reset captcha
+      setCaptchaInput("");
+      fetchCaptcha();
     }
   };
 
@@ -342,6 +370,40 @@ const validateForm = () => {
             </div>
           ))}
         </div>
+        
+ {/* Captcha */}
+<div style={{ marginTop: "12px" }}>
+  <div
+    dangerouslySetInnerHTML={{ __html: captcha }}
+    onClick={fetchCaptcha}
+    style={{
+      cursor: "pointer",
+      background: "#fff",
+      borderRadius: "8px",
+      padding: "5px",
+      textAlign: "center",
+    }}
+  />
+
+  <input
+    type="text"
+    placeholder="Nhập captcha"
+    value={captchaInput}
+    onChange={(e) => {
+      setCaptchaInput(e.target.value);
+      setErrors(prev => ({ ...prev, captcha: "" })); // 🔥 clear lỗi khi nhập lại
+    }}
+    style={{ ...inputStyle, marginTop: "8px" }}
+  />
+
+  {/* 🔥 THÊM Ở ĐÂY */}
+  {errors.captcha && (
+    <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
+      {errors.captcha}
+    </p>
+  )}
+</div>
+
 
         {/* Button */}
         <button
