@@ -8,15 +8,17 @@ const ProcessUploadData = async (req, res) => {
     const ProcessMetadata = await uploadDataService.ProcessUploadData(metaData, file);
 
     // Trả JSON hợp lệ
-    if(ProcessMetadata){
+    if(ProcessMetadata?.success){
       return res.status(200).json({
       success: true,
-      message: "Upload thành công",
-      data: ProcessMetadata || null
+      message: ProcessMetadata?.message,
+      data: ProcessMetadata?.data || null
     });
     }else{
       return res.status(500).json({
-        message:"Lỗi"
+        success:false,
+        message: ProcessMetadata?.message,
+        errors: ProcessMetadata?.errors
       })
     }
   } catch (err) {
@@ -24,7 +26,7 @@ const ProcessUploadData = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Lỗi server khi xử lý upload",
-      error: err.message
+      error: err?.message
     });
   }
 };
