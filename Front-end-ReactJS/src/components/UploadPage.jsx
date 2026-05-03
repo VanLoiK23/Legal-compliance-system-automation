@@ -12,17 +12,56 @@ export default function UploadPage() {
     note: "",
     email: "",
   });
-
+const MAX_FILE_SIZE = 3 * 1024 * 1024;  
+const ALLOWED_TYPE = "application/pdf";
+const MAX_FILES = 1;
+const [errors, setErrors] = useState({});
   const inputRef = useRef();
 
-  const handleFiles = (selectedFiles) => {
-    const newFiles = Array.from(selectedFiles).map((file) => ({
+   const handleFiles = (selectedFiles) => {
+     setErrors((prev) => ({ ...prev, file: "" }));
+     let errorMsg = "";
+     const validFiles = [];
+
+  Array.from(selectedFiles).forEach((file) => {
+    // check type
+    if (file.type !== ALLOWED_TYPE) {
+      if (!errorMsg) errorMsg = "Chỉ cho phép file PDF";
+      return;
+    }
+
+    // check size
+    if (file.size > MAX_FILE_SIZE) {
+      if (!errorMsg) errorMsg = "File phải nhỏ hơn 3MB";
+      return;
+    }
+
+    validFiles.push({
       file,
       id: Math.random().toString(36).substring(7),
-    }));
-    setFiles((prev) => [...prev, ...newFiles]);
-  };
+    });
+  });
 
+  // check số lượng (sau khi loop xong)
+  if (validFiles.length > MAX_FILES) {
+    errorMsg = `Chỉ cho phép upload tối đa ${MAX_FILES} file`;
+  }
+
+  // set file (1 lần duy nhất)
+  if (validFiles.length && !errorMsg) {
+    if (MAX_FILES === 1) {
+      setFiles(validFiles);
+    } else {
+      setFiles((prev) => [...prev, ...validFiles]);
+    }
+  }
+
+  // set error (1 lần duy nhất)
+  setErrors((prev) => ({
+    ...prev,
+    file: errorMsg,
+  }));
+};
   const onDrop = (e) => {
     e.preventDefault();
     handleFiles(e.dataTransfer.files);
@@ -36,10 +75,48 @@ export default function UploadPage() {
     setMetadata({ ...metadata, [e.target.name]: e.target.value });
   };
 
+const validateForm = () => {
+  const newErrors = {};
+
+  if (!metadata.employeeName.trim()) {
+    newErrors.employeeName = "Tên không được để trống";
+  }
+
+  if (!metadata.email.trim()) {
+    newErrors.email = "Email không được để trống";
+  } else {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(metadata.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+  }
+
+  if (!metadata.birthDate) {
+    newErrors.birthDate = "Vui lòng chọn ngày sinh";
+  }
+
+  if (!metadata.company.trim()) {
+    newErrors.company = "Công ty không được để trống";
+  }
+
+  setErrors((prev) => ({
+    ...prev,
+    ...newErrors,
+  }));
+
+  return Object.keys(newErrors).length === 0;
+};
+
   // ĐÃ SỬA LẠI HÀM NÀY CHUẨN AXIOS
   const uploadFiles = async () => { 
-    if (!files.length) return;
-
+    if (!files.length) {
+    setErrors((prev) => ({
+      ...prev,
+      file: "Vui lòng chọn file",
+    }));
+    return;
+  }
+  if (!validateForm()) return;
     const formData = new FormData(); 
     // Sửa chữ fipostle thành file
     formData.append("file", files[0].file); 
@@ -94,95 +171,151 @@ export default function UploadPage() {
       >
         <h4 className="text-center mb-3 fw-bold">📄 Upload W2 Document</h4>
 
-        {/* Upload Box */}
-        <div
-          onClick={() => inputRef.current.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={onDrop}
-          style={{
-            border: "2px dashed rgba(255,255,255,0.5)",
-            borderRadius: "15px",
-            padding: "18px",
-            textAlign: "center",
-            cursor: "pointer",
-          }}
-        >
-          <p className="mb-1">📂 Drag & Drop file</p>
-          <small>or click to select</small>
+     <div>
+  {/* Upload Box */}
+  <div
+    onClick={() => inputRef.current.click()}
+    onDragOver={(e) => e.preventDefault()}
+    onDrop={onDrop}
+    style={{
+      border: errors.file
+        ? "2px dashed red"
+        : "2px dashed rgba(255,255,255,0.5)",
+      borderRadius: "15px",
+      padding: "18px",
+      textAlign: "center",
+      cursor: "pointer",
+    }}
+  >
+    <p className="mb-1">📂 Drag & Drop file</p>
+    <small>or click to select</small>
 
-          <input
-            type="file"
-            multiple
-            hidden
-            ref={inputRef}
-            onChange={(e) => handleFiles(e.target.files)}
-          />
-        </div>
+    <input
+      type="file"
+      multiple
+      hidden
+      ref={inputRef}
+      onChange={(e) => handleFiles(e.target.files)}
+    />
+  </div>
 
-        {/* Metadata */}
-        <div
-          className="mt-3"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "12px",
-          }}
-        >
-          <div>
-            <label className="label">👤 Tên</label>
-            <input
-              type="text"
-              name="employeeName"
-              value={metadata.employeeName}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
+  {/* Error message */}
+  {errors.file && (
+    <p
+      style={{
+        color: "red",
+        fontSize: "12px",
+        marginTop: "6px",
+      }}
+    >
+      ⚠️ {errors.file}
+    </p>
+  )}
+</div>
 
-          <div>
-            <label className="label">📧 Email</label>
-            <input
-              type="email"
-              name="email"
-              value={metadata.email}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
+      {/* Metadata */}
+<div
+  className="mt-3"
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "12px",
+  }}
+>
+  {/* 👤 Tên */}
+  <div>
+    <label className="label">👤 Tên</label>
+    <input
+      type="text"
+      name="employeeName"
+      value={metadata.employeeName}
+      onChange={handleChange}
+      style={{
+        ...inputStyle,
+        border: errors.employeeName
+          ? "1px solid red"
+          : inputStyle.border,
+      }}
+    />
+    {errors.employeeName && (
+      <p style={{ color: "red", fontSize: "12px" }}>
+        {errors.employeeName}
+      </p>
+    )}
+  </div>
 
-          <div style={{ gridColumn: "1 / span 2" }}>
-            <label className="label">📅 Ngày sinh</label>
-            <input
-              type="date"
-              name="birthDate"
-              value={metadata.birthDate}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
+  {/* 📧 Email */}
+  <div>
+    <label className="label">📧 Email</label>
+    <input
+      type="email"
+      name="email"
+      value={metadata.email}
+      onChange={handleChange}
+      style={{
+        ...inputStyle,
+        border: errors.email ? "1px solid red" : inputStyle.border,
+      }}
+    />
+    {errors.email && (
+      <p style={{ color: "red", fontSize: "12px" }}>
+        {errors.email}
+      </p>
+    )}
+  </div>
 
-          <div style={{ gridColumn: "1 / span 2" }}>
-            <label className="label">🏢 Công ty</label>
-            <input
-              type="text"
-              name="company"
-              value={metadata.company}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
+  {/* 📅 Ngày sinh */}
+  <div style={{ gridColumn: "1 / span 2" }}>
+    <label className="label">📅 Ngày sinh</label>
+    <input
+      type="date"
+      name="birthDate"
+      value={metadata.birthDate}
+      onChange={handleChange}
+      style={{
+        ...inputStyle,
+        border: errors.birthDate ? "1px solid red" : inputStyle.border,
+      }}
+    />
+    {errors.birthDate && (
+      <p style={{ color: "red", fontSize: "12px" }}>
+        {errors.birthDate}
+      </p>
+    )}
+  </div>
 
-          <div style={{ gridColumn: "1 / span 2" }}>
-            <label className="label">📝 Ghi chú</label>
-            <textarea
-              name="note"
-              rows="2"
-              value={metadata.note}
-              onChange={handleChange}
-              style={inputStyle}
-            />
-          </div>
-        </div>
+  {/* 🏢 Công ty */}
+  <div style={{ gridColumn: "1 / span 2" }}>
+    <label className="label">🏢 Công ty</label>
+    <input
+      type="text"
+      name="company"
+      value={metadata.company}
+      onChange={handleChange}
+      style={{
+        ...inputStyle,
+        border: errors.company ? "1px solid red" : inputStyle.border,
+      }}
+    />
+    {errors.company && (
+      <p style={{ color: "red", fontSize: "12px" }}>
+        {errors.company}
+      </p>
+    )}
+  </div>
+
+  {/* 📝 Ghi chú (optional nên không cần validate) */}
+  <div style={{ gridColumn: "1 / span 2" }}>
+    <label className="label">📝 Ghi chú</label>
+    <textarea
+      name="note"
+      rows="2"
+      value={metadata.note}
+      onChange={handleChange}
+      style={inputStyle}
+    />
+  </div>
+</div>
 
         {/* File List */}
         <div className="mt-2" style={{ maxHeight: "120px", overflowY: "auto" }}>
