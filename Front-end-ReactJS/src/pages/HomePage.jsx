@@ -1,10 +1,32 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import UploadPage from "../components/UploadPage";
-
+import LoginPage from "../components/LoginPage";
+import RegisterPage from "../components/RegisterPage";
+import instance from "../utils/axios.customize";
 export default function HomePage() {
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(null);
+    const [user, setUser] = useState(null);
+     useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const res = await instance.get("/me");
+        setUser(res.data.user);
+      } catch {
+        setUser(null);
+      }
+    };
 
+    fetchMe();
+  }, []);
+  const handleLogout = async () => {
+  try {
+    await instance.post("/logout");
+    setUser(null);
+  } catch (err) {
+    console.log(err);
+  }
+};
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* IMPORT FONT */}
@@ -41,9 +63,53 @@ export default function HomePage() {
                 </a>
               </li>
             </ul>
-            <button className="btn btn-light rounded-pill px-4 fw-semibold">
-              Đăng nhập
-            </button>
+  <div className="d-flex gap-2 align-items-center">
+  {!user ? (
+    <>
+      <button
+        className="btn btn-light rounded-pill px-4 fw-semibold shadow-sm"
+        onClick={() => setShowModal("login")}
+      >
+        Đăng nhập
+      </button>
+
+      <button
+        className="btn btn-outline-light rounded-pill px-4 fw-semibold"
+        onClick={() => setShowModal("register")}
+      >
+        Đăng ký
+      </button>
+    </>
+  ) : (
+    <div className="dropdown">
+      <button
+        className="btn btn-light rounded-pill px-4 fw-semibold dropdown-toggle"
+        data-bs-toggle="dropdown"
+      >
+        👤 {user.fullName}
+      </button>
+
+      <ul className="dropdown-menu dropdown-menu-end">
+        <li>
+          <button className="dropdown-item">
+            Hồ sơ
+          </button>
+        </li>
+        <li>
+          <button className="dropdown-item">
+            Lịch sử upload
+          </button>
+        </li>
+        <li><hr className="dropdown-divider" /></li>
+        <li>
+          <button className="dropdown-item text-danger" onClick={handleLogout}>
+            Đăng xuất
+          </button>
+        </li>
+      </ul>
+    </div>
+  )}
+</div>
           </div>
         </div>
       </nav>
@@ -86,7 +152,7 @@ export default function HomePage() {
               </p>
 
               <div className="mt-4" align="">
-                <button  onClick={() => setShowModal(true)} className="btn btn-light me-3 px-4 py-2 rounded-pill fw-semibold">
+                <button id="upload" onClick={() => setShowModal("upload")} className="btn btn-light me-3 px-4 py-2 rounded-pill fw-semibold">
                   Upload & xử lý ngay
                 </button>
               </div>
@@ -108,7 +174,7 @@ export default function HomePage() {
       </section>
     {showModal && (
         <div
-          onClick={() => setShowModal(false)}
+          onClick={() => setShowModal(null)}
           style={{
             position: "fixed",
             top: 0,
@@ -136,7 +202,7 @@ export default function HomePage() {
           >
             {/* CLOSE BUTTON */}
             <button
-              onClick={() => setShowModal(false)}
+              onClick={() => setShowModal(null)}
               style={{
                 position: "absolute",
                 top: "10px",
@@ -155,7 +221,9 @@ export default function HomePage() {
             </button>
 
             {/* 👉 FORM CỦA BẠN */}
-            <UploadPage />
+            {showModal === "upload" && <UploadPage />}
+            {showModal === "login" && <LoginPage/> }
+            {showModal === "register" && <RegisterPage/> }
           </div>
         </div>
       )}

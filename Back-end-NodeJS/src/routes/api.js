@@ -23,6 +23,7 @@ const {getDataw2,saveWeeklyW2Data,gettotalData,deteleDatareport} = require('../c
 //apply middleware for all routes
 router.use(checkIsValidOrigin);
 const { getCaptcha } = require('../controllers/captchaController');
+const { register,login,getMe,logout} = require('../controllers/authController');
 //workflow 1
 router.post('/rule',upsertRule);
 router.get('/rule',getRuleExist);
@@ -71,6 +72,10 @@ router.get("/weekly-w2/getdata", gettotalData);
 router.delete('/weekly-w2/:id', deteleDatareport);
 
 router.get('/captcha', getCaptcha);
+router.post('/register', register);
+router.post('/login', login);
+router.get("/me", getMe);
+router.post('/logout', logout);
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
 router.get('/compliance-results', getAllResults);         // Endpoint 2 (Mới)
