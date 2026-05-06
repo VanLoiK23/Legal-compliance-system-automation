@@ -7,6 +7,7 @@ const [captcha, setCaptcha] = useState("");
 const [captchaInput, setCaptchaInput] = useState("");
   const URL_HOST = import.meta.env.VITE_URL_HOST;
   const [files, setFiles] = useState([]);
+  const [user, setUser] = useState(undefined);
   const [metadata, setMetadata] = useState({
     employeeName: "",
     birthDate: "",
@@ -26,9 +27,33 @@ const fetchCaptcha = async () => {
 };
 
 useEffect(() => {
-  fetchCaptcha();
+  const init = async () => {
+    await fetchCaptcha();
+    await fetchUser();
+  };
+  init();
 }, []);
+const fetchUser = async () => {
+  try {
+    const res = await instance.get("/me");
 
+    const u = res.data.user;
+    setUser(u);
+
+    // 🔥 map data từ DB -> form
+    setMetadata((prev) => ({
+      ...prev,
+      employeeName: u.fullName || "",
+      email: u.email || "",
+      company: u.company || "",
+      birthDate: u.birthDate
+        ? u.birthDate.split("T")[0] // format yyyy-mm-dd
+        : "",
+    }));
+  } catch (err) {
+    console.log("Chưa đăng nhập");
+  }
+};
    const handleFiles = (selectedFiles) => {
      setErrors((prev) => ({ ...prev, file: "" }));
      let errorMsg = "";
@@ -156,13 +181,15 @@ const validateForm = () => {
       
       // Reset lại form sau khi thành công
       setFiles([]);
-      setMetadata({
-        employeeName: "",
-        birthDate: "",
-        company: "",
-        note: "",
-        email: "",
-      });
+       setMetadata({
+  employeeName: user?.fullName || "",
+  birthDate: user?.birthDate
+    ? user.birthDate.split("T")[0]
+    : "",
+  company: user?.company || "",
+  note: "",
+  email: user?.email || "",
+});
       //reset captcha
       setCaptchaInput("");
       fetchCaptcha();
@@ -176,7 +203,13 @@ const validateForm = () => {
       fetchCaptcha();
     }
   };
+ if (user === undefined) {
+  return <div>Loading...</div>;
+}
 
+if (user === null) {
+  return <div>Vui lòng đăng nhập</div>;
+}
   return (
     <div
       className="d-flex justify-content-center align-items-center vh-100"
