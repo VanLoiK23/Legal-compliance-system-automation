@@ -1,5 +1,5 @@
 const ComplianceResult = require('../models/complianceResult');
-
+const AIProcessingResult = require('../models/aiProcessingResult');
 const saveComplianceResult = async (req, res) => {
     try {
         const { evidenceName, matchedRuleId, complianceRes, aiReasoning, severity, aiExplain, riskScore, timestamp, fileHash, violatingText, suggestedFix, richReport } = req.body;
@@ -158,6 +158,34 @@ const updateStatus = async (req, res) => {
         res.status(500).send("Lỗi hệ thống: " + error.message);
     }
 };
+
+const saveRawAIResult = async (req, res) => {
+    try {
+        const { evidenceName, matchedRuleId, rawText } = req.body;
+        
+        // Tách chuỗi ngay tại Backend để lưu trữ có cấu trúc
+        const parts = rawText.split(' | ');
+        
+        const newRawData = new AIProcessingResult({
+            evidenceName,
+            matchedRuleId,
+            rawAIOutput: rawText,
+            severity: parts[3],
+            riskScore: parseInt(parts[4]) || 0,
+            violatingText: parts[5],
+            suggestedFix: parts[6],
+            aiExplain: parts[7]
+        });
+
+        await newRawData.save();
+        res.status(201).json({ 
+            message: "✅ Đã lưu hồ sơ AI thô", 
+            data: newRawData // Trả về _id để n8n dùng cho luồng sau
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 module.exports = { 
     saveComplianceResult, 
     getAllResults, 
@@ -166,5 +194,6 @@ module.exports = {
     getStats,
     fetchDataForDashboard,
     checkDuplicate,
-    updateStatus 
+    updateStatus,
+    saveRawAIResult 
 };
