@@ -7,6 +7,7 @@ const { receiveData ,getData, deleteMetadata} = require('../controllers/metadata
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
 const {checkFiles} = require('../controllers/checkFilesController')
 const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard, checkDuplicate, updateStatus } = require('../controllers/complianceController');
+const { processExtraction } = require('../controllers/extractionController');
 const { upsertTemplate, fetch_template_follow_template_key} = require('../controllers/templateController');
 const { createAuditLog, getAuditLogs, getAuditStats } = require('../controllers/systemAuditController');
 //apply middleware for all
@@ -89,5 +90,6 @@ router.post('/system-audit', createAuditLog);
 router.get('/system-audit', getAuditLogs);
 router.get('/system-audit/stats', getAuditStats);
 router.get('/compliance/approve/:id', updateStatus);
+router.post('/extract-pdf', processExtraction);
 
 module.exports = router;
