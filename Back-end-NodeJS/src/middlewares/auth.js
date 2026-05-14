@@ -55,7 +55,8 @@ const checkIsValidOrigin = (req, res, next) => {
         '103.200.22.83', 
         '127.0.0.1', 
         '::1', 
-        '172.19.0.1' //ip docker host, dành cho dev khi chạy backend trong container và frontend trên máy local
+        '172.19.0.1',
+        '172.18.0.1'  //ip docker host, dành cho dev khi chạy backend trong container và frontend trên máy local
     ];
 
     // Kiểm tra nếu IP thuộc danh sách tin cậy

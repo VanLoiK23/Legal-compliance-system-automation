@@ -77,6 +77,19 @@ router.post('/register', register);
 router.post('/login', login);
 router.get("/me", getMe);
 router.post('/logout', logout);
+const { uploadPdf } = require('../controllers/UploadCloudnaryController');
+const uploadCloudnary = require('../middlewares/uploadCloudnary');
+router.post(
+  '/upload-pdf',
+  uploadCloudnary.single('file'),
+  uploadPdf
+);
+
+
+const {
+  getHistory,
+} = require("../controllers/historyw2Controller");
+router.get("/history", getHistory);
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
 router.get('/compliance-results', getAllResults);         // Endpoint 2 (Mới)

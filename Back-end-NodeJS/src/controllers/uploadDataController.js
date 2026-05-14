@@ -13,12 +13,12 @@ const ProcessUploadData = async (req, res) => {
       });
     }
     req.session.captcha = null;
-    
-    const ProcessMetadata = await uploadDataService.ProcessUploadData(metaData, file);
+    const user = req.session.user.id;
+    const ProcessMetadata = await uploadDataService.ProcessUploadData(metaData, file,user);
 
     // Trả JSON hợp lệ
     if(ProcessMetadata?.success){
-      return res.status(200).json({
+      return res.status(200).json({ 
       success: true,
       message: ProcessMetadata?.message,
       data: ProcessMetadata?.data || null

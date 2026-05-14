@@ -39,7 +39,7 @@ if (!data.employeeName || !data.employeeName.trim()) {
   return errors;
 }
 
-const ProcessUploadData = async (data,file) => {
+const ProcessUploadData = async (data,file,userid) => {
 try {
    const errors = await ValidationData(data, file);
     if (Object.keys(errors).length > 0) {
@@ -56,6 +56,7 @@ try {
       form.append(key, data[key]);
     });
     // file
+    form.append('userId', userid);
     form.append('file', fs.createReadStream(file.path));
     
       const response = await axios.post(
