@@ -6,7 +6,7 @@ const {auth,authIsAdmin,checkIsValidOrigin} = require('../middlewares/auth')
 const { receiveData ,getData, deleteMetadata} = require('../controllers/metadataController');
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
 const {checkFiles} = require('../controllers/checkFilesController')
-const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard, checkDuplicate, updateStatus, saveRawAIResult } = require('../controllers/complianceController');
+const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard, checkDuplicate, updateStatus, saveRawAIResult, getRawAIResultById } = require('../controllers/complianceController');
 const { processExtraction } = require('../controllers/extractionController');
 const { upsertTemplate, fetch_template_follow_template_key} = require('../controllers/templateController');
 const { createAuditLog, getAuditLogs, getAuditStats } = require('../controllers/systemAuditController');
@@ -87,6 +87,7 @@ router.get('/compliance-fetch', fetchDataForDashboard);
 router.get('/check-duplicate/:hash', checkDuplicate);
 
 router.post('/save-ai-raw', saveRawAIResult);
+router.get('/save-ai-raw/:id', getRawAIResultById);
 
 router.post('/system-audit', createAuditLog);
 router.get('/system-audit', getAuditLogs);

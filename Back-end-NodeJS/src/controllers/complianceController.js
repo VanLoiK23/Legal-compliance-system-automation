@@ -186,6 +186,15 @@ const saveRawAIResult = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const getRawAIResultById = async (req, res) => {
+    try {
+        const result = await AIProcessingResult.findById(req.params.id);
+        if (!result) return res.status(404).json({ message: "Không tìm thấy hồ sơ thô" });
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 module.exports = { 
     saveComplianceResult, 
     getAllResults, 
@@ -195,5 +204,6 @@ module.exports = {
     fetchDataForDashboard,
     checkDuplicate,
     updateStatus,
-    saveRawAIResult 
+    saveRawAIResult,
+    getRawAIResultById 
 };
