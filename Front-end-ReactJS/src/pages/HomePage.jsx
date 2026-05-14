@@ -4,6 +4,8 @@ import UploadPage from "../components/UploadPage";
 import LoginPage from "../components/LoginPage";
 import RegisterPage from "../components/RegisterPage";
 import instance from "../utils/axios.customize";
+import ProfilePage from "../components/AccountPage"; 
+import HistoryPage from "../components/HistoryuploadPage";
 export default function HomePage() {
     const [showModal, setShowModal] = useState(null);
     const [user, setUser] = useState(null);
@@ -89,14 +91,14 @@ export default function HomePage() {
         👤 {user.fullName}
       </button>
 
-      <ul className="dropdown-menu dropdown-menu-end">
+      <ul  className="dropdown-menu dropdown-menu-end">
         <li>
-          <button className="dropdown-item">
+          <button onClick={() => setShowModal("profile")} className="dropdown-item">
             Hồ sơ
           </button>
         </li>
         <li>
-          <button className="dropdown-item">
+          <button onClick={() => setShowModal("history")} className="dropdown-item">
             Lịch sử upload
           </button>
         </li>
@@ -224,6 +226,8 @@ export default function HomePage() {
             {showModal === "upload" && <UploadPage />}
             {showModal === "login" && <LoginPage/> }
             {showModal === "register" && <RegisterPage/> }
+            {showModal === "profile" && <ProfilePage />}
+            {showModal === "history" && <HistoryPage />}
           </div>
         </div>
       )}
