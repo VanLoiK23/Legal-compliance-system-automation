@@ -1,33 +1,33 @@
-const pdf = require('pdf-parse');
+// src/services/extractionService.js
+const pdf = require('pdf-parse-fork'); // Dùng bản fork để sửa lỗi "not a function"
 const axios = require('axios');
 
 const extractTextFromUrl = async (fileUrl) => {
     try {
-        console.log("--- Bắt đầu tải file từ Cloudinary ---");
+        console.log(">>> [LOG] Bắt đầu tải file từ:", fileUrl);
         const response = await axios.get(fileUrl, { 
             responseType: 'arraybuffer',
-            // Thêm các Header này để Cloudinary không chặn
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept': 'application/pdf'
-            },
-            timeout: 10000 // Tối đa 10 giây để tải
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
         });
 
-        // Kiểm tra nếu trả về không phải PDF (ví dụ trả về trang login HTML)
-        const contentType = response.headers['content-type'];
-        if (contentType && contentType.includes('text/html')) {
-            throw new Error("Cloudinary yêu cầu xác thực, không trả về file PDF trực tiếp.");
+        // Nạp thư viện một cách an toàn nhất
+        const parsePDF = (typeof pdf === 'function') ? pdf : (pdf.default || pdf);
+
+        if (typeof parsePDF !== 'function') {
+             console.error(">>> [ERROR] Vẫn không nạp được hàm parse. Object nhận được:", typeof pdf);
+             throw new Error("Lỗi nạp thư viện hệ thống.");
         }
 
-        console.log("--- Đang trích xuất văn bản PDF ---");
-        const data = await pdf(response.data);
+        const data = await parsePDF(response.data);
+        console.log(">>> [LOG] Trích xuất thành công! Độ dài văn bản:", data.text.length);
         
-        // Trả về text sạch (xóa khoảng trắng thừa)
         return data.text.replace(/\s+/g, ' ').trim();
+
     } catch (error) {
-        console.error("❌ Lỗi Extraction Service:", error.message);
-        throw new Error("Lỗi trích xuất: " + error.message);
+        console.error("❌ [EXTRACTION ERROR]:", error.message);
+        throw new Error(error.message);
     }
 };
 
