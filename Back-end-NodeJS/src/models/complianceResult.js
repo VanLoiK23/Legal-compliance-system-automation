@@ -10,7 +10,7 @@ const complianceResultSchema = new mongoose.Schema({
     riskScore: { type: Number, min: 0, max: 10, default: 0 }, // Tương ứng riskScore
     timestamp: { type: Date, default: Date.now },
     fileHash: { type: String, unique: true },
-    violatingText: {Stype: String },
+    violatingText: { type: String },
     suggestedFix: { type: String },
     richReport: { type: String },
     status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' }
