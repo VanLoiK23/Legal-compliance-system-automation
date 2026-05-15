@@ -25,7 +25,8 @@ import PlainEmailTemplateManager from './pages/admin/Template_High_Severity.jsx'
 import NotificationTemplateManager from './pages/admin/Template_Zalo_Tele_W1.jsx';
 import TelegramCredentialManager from './pages/admin/CredentialTelegramManagement.jsx';
 import WeeklyTemplateManager from './pages/admin/Template_Tele_Weekly_Report.jsx';
-//import AISystemSettings from './pages/admin/toggle_management.jsx';
+import AISystemSettings from './pages/admin/toggle_management.jsx';
+import PromptManagement from './pages/admin/Prompt/PromptMagement.jsx';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -109,15 +110,27 @@ const router = createBrowserRouter([
     }
   ]
 },{
+  path: "prompts",
+  children: [
+    { 
+      index: true, 
+      element: <Navigate to="prompt-management" replace /> 
+    },
+    { 
+      path: "prompt-management", 
+      element: <PromptManagement /> 
+    },
+  ]
+},{
         path: "settings",
         element: <LawSourceConfig />
       }
     ]
   },
-  {
-    path: "login",
-    element: <LoginForm/>
-  },
+  // {
+  //   path: "login",
+  //   element: <LoginForm/>
+  // },
     {
     path: "form-upload",
     element: <UploadPage/>

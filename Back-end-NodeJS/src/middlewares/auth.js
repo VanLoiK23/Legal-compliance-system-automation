@@ -69,6 +69,11 @@ const checkIsValidOrigin = (req, res, next) => {
         return next();
     }
 
+    //n8n
+    if (origin.includes('hdpe36.pro.vn')) {
+        return next();
+    }
+
     // Kiểm tra nếu là localhost (Dành cho Front-end dev)
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
         return next();
