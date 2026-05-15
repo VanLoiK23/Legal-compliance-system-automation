@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 # PHẢI THÊM "Front-end-ReactJS/" vào trước tên file
 COPY Front-end-ReactJS/package*.json ./
