@@ -7,7 +7,7 @@ const { receiveData ,getData, deleteMetadata} = require('../controllers/metadata
 const {ProcessUploadData} =  require('../controllers/uploadDataController')
 const {checkFiles} = require('../controllers/checkFilesController')
 const { saveComplianceResult, getAllResults, getResultById, deleteResult, getStats, fetchDataForDashboard, checkDuplicate, updateStatus, saveRawAIResult } = require('../controllers/complianceController');
-const { processExtraction } = require('../controllers/extractionController');
+const { processExtraction, getAllExtracted, getExtractedById } = require('../controllers/extractionController');
 const { upsertTemplate, fetch_template_follow_template_key} = require('../controllers/templateController');
 const { createAuditLog, getAuditLogs, getAuditStats } = require('../controllers/systemAuditController');
 //apply middleware for all
@@ -45,8 +45,8 @@ router.get('/logging',fetchLog);
 router.get('/logging/last-w1',fetchLastLogW1);
 router.post('/config',upsertConfig);
 router.get('/config',fetch_config);
-router.post('/toggle',upsertToggle);
-router.get('/toggle',fetch_config);
+//router.post('/toggle',upsertToggle);
+//router.get('/toggle',fetch_config);
 router.post('/credential-gmail',upsertCredentialGmail);
 router.get('/credential-gmail',fetch_credential_gmail);
 router.post('/telegram-credentials',add_credential_telegram);
@@ -112,5 +112,7 @@ router.get('/system-audit', getAuditLogs);
 router.get('/system-audit/stats', getAuditStats);
 router.get('/compliance/approve/:id', updateStatus);
 router.post('/extract-pdf', processExtraction);
+router.get('/extracted-data', getAllExtracted);
+router.get('/extracted-data/:id', getExtractedById);
 
 module.exports = router;
