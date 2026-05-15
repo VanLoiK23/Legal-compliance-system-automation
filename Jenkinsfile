@@ -29,7 +29,7 @@ pipeline {
                          docker image prune -f'
                 """
             }
-        }
+        } 
 
         stage('Health Check') {
             parallel {
