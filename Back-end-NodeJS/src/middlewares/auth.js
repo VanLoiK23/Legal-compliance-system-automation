@@ -51,6 +51,10 @@ const checkIsValidOrigin = (req, res, next) => {
 
     console.log(`Debug - IP: ${clientIp}, Origin: ${origin}`);
 
+    if (req.path === '/rule' || req.url.endsWith('/rule')) {
+        return next();
+    }
+
     const white_list = [
         '103.200.22.83', 
         '127.0.0.1', 
