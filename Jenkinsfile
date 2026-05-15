@@ -17,20 +17,19 @@ pipeline {
         }
 
         stage('Deploy to VPS') {
-    steps {
-        echo 'Deploying to VPS...'
-        sh """
-            ssh -i ${SSH_KEY} \
-            -o StrictHostKeyChecking=no \
-            ${VPS_USER}@${VPS_HOST} \
-            'cd ${DEPLOY_PATH} && \
-             git fetch --all && \
-             git reset --hard origin/main && \
-             docker compose -f docker-compose.prod.yml up -d --build && \
-             docker image prune -f'
-        """
-    }
-}
+            steps {
+                echo 'Deploying to VPS...'
+                sh """
+                    ssh -i ${SSH_KEY} \
+                        -o StrictHostKeyChecking=no \
+                        ${VPS_USER}@${VPS_HOST} \
+                        'cd ${DEPLOY_PATH} && \
+                         git pull origin main && \
+                         docker compose -f docker-compose.prod.yml up -d --build && \
+                         docker image prune -f'
+                """
+            }
+        } 
 
         stage('Health Check') {
             parallel {
