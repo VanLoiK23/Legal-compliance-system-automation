@@ -36,7 +36,7 @@ const menuItems = [
       { name: "Báo cáo gửi zalo, tele của W1", path: "notify-templates/summary_report" },
       { name: "Báo cáo tuân thủ hàng tuần", path: "notify-templates/weekly_report" },
     ]
-  },
+  },{ name: "Quản lý Prompt", icon: Settings, path: "prompts/prompt-management" },
   { name: "Logging", icon: Logs, path: "loggings" },
 ];
 

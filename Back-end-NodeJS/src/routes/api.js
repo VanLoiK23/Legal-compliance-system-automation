@@ -24,6 +24,8 @@ const {getDataw2,saveWeeklyW2Data,gettotalData,deteleDatareport} = require('../c
 router.use(checkIsValidOrigin);
 const { getCaptcha } = require('../controllers/captchaController');
 const { register,login,getMe,logout} = require('../controllers/authController');
+const { findPromptBySlug, updatePromptById ,getPromptList} = require('../controllers/promptController');
+
 //workflow 1
 router.post('/rule',upsertRule);
 router.get('/rule',getRuleExist);
@@ -53,6 +55,9 @@ router.delete('/telegram-credentials/:_id',delete_credential_telegram);
 router.get('/telegram-credentials/key/:key',fetch_credential_telegram_by_key);
 router.get('/email-templates/:template_key',fetch_template_follow_template_key);
 router.post('/email-templates',upsertTemplate);
+router.get('/prompts',getPromptList);
+router.get('/prompts/:slug',findPromptBySlug);
+router.patch('/prompts/:id',updatePromptById);
 // router.get('/user',fetchUser);
 // router.delete('/user/:id',authIsAdmin,deleteUserById);
 // router.put('/user',authIsAdmin,updateUserById);
@@ -88,6 +93,7 @@ router.post(
 const {
   getHistory,
 } = require("../controllers/historyw2Controller");
+const { find } = require('../models/rule');
 router.get("/history", getHistory);
 //workflow 3
 router.post('/compliance-results', saveComplianceResult); // Endpoint 1 (Đã làm)
